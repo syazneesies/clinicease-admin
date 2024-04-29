@@ -1,0 +1,69 @@
+body {
+    margin: 0;
+    font-family: 'Poppins';
+    src: url('/fonts/Poppins/Poppins-Regular.ttf') format ('truetype');
+  }
+  
+  .topnav {
+    overflow: hidden;
+    background-color: #333;
+  }
+  
+  .topnav a {
+    float: left;
+    color: #f2f2f2;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-size: 17px;
+    font-family: 'Poppins';
+    src: url('/fonts/Poppins/Poppins-SemiBold.ttf') format ('truetype');
+  }
+  
+  .topnav a:hover {
+    background-color: #ddd;
+    color: black;
+  }
+  
+  .topnav a.split {
+    float: right;
+    background-color: #04AA6D;
+    color: white;
+    font-family: 'Poppins';
+    src: url('/fonts/Poppins/Poppins-SemiBold.ttf') format ('truetype');
+  }
+
+  .add-service-button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #007bff; /* Blue background color */
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+  }
+  
+  .add-service-button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+  }
+  
+
+table.services-table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+  
+  table.services-table th, table.services-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+  }
+  
+  table.services-table th {
+    background-color: #87CEEB; /* Sky blue background */
+    color: white;
+  }
+  
+  table.services-table tr:nth-child(even) {
+    background-color: #f2f2f2; /* White background for even rows */
+  }
+  

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="/styles/service_styles.css">
+</head>
+<body>
+
+<div style="padding-left:16px">
+  <h2>Reward Details</h2>
+  
+  <div id="reward-details">
+    <p><strong>Reward Name:</strong> <span id="reward-name"></span></p>
+    <p><strong>Reward Description:</strong> <span id="reward-description"></span></p>
+    <p><strong>Reward Date:</strong> <span id="reward-date"></span></p>
+    <p><strong>Reward Quantity:</strong> <span id="reward-quantity"></span></p>
+    <p><strong>Reward Point:</strong> <span id="reward-point"></span></p>
+    <p><strong>Reward Status:</strong> <span id="reward-status"></span></p>
+    <p><strong>Reward PIC:</strong> <span id="reward-pic"></span></p>
+    <img id="reward-image" src="" alt="Reward Image">
+  </div>
+</div>
+
+<script>
+  // Retrieve rewardId from query parameter and fetch service details
+  const urlParams = new URLSearchParams(window.location.search);
+  const rewardId = urlParams.get('id');
+
+  // Fetch service details using the rewardId
+  fetch(`/rewards/${rewardId}`)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Reward details not available');
+      }
+      return response.json();
+    })
+    .then(data => {
+      // Populate the reward details on the page
+      document.getElementById('reward-name').textContent = data.rewardName;
+      document.getElementById('reward-description').textContent = data.rewardDescription;
+      document.getElementById('reward-date').textContent = data.rewardDate;
+      document.getElementById('reward-quantity').textContent = data.rewardQuantity;
+      document.getElementById('reward-point').textContent = data.rewardPoint;
+      document.getElementById('reward-status').textContent = data.rewardStatus;
+      document.getElementById('reward-pic').textContent = data.rewardPIC;
+      document.getElementById('reward-image').src = data.imageUrl;
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      // Display an error message to the user
+      document.getElementById('reward-details').innerHTML = '<p>Error: Reward details not available</p>';
+    });
+</script>
+
+</body>
+</html>

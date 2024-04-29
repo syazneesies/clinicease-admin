@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="/styles/add_service_styles.css">
+</head>
+<body>
+
+<div class="container">
+  <h2>Add Service</h2>
+  <form id="serviceForm" enctype="multipart/form-data">
+    <div class="form-group">
+      <label for="serviceImage">Upload Image:</label>
+      <input type="file" id="serviceImage" name="serviceImage" accept="image/*" required>
+      <img id="previewImage" src="#" alt="Preview Image" style="display: none; max-width: 200px;">
+    </div>
+    <div class="form-group">
+      <label for="serviceName">Service Name:</label>
+      <input type="text" id="serviceName" name="serviceName" required>
+    </div>
+    <div class="form-group">
+      <label for="serviceDescription">Service Description:</label>
+      <textarea id="serviceDescription" name="serviceDescription" rows="4" required></textarea>
+    </div>
+    <div class="form-group">
+      <label for="serviceDate">Service Date:</label>
+      <input type="date" id="serviceDate" name="serviceDate" required>
+    </div>
+    <div class="form-group">
+      <label for="serviceQuantity">Service Quantity:</label>
+      <input type="number" id="serviceQuantity" name="serviceQuantity" required>
+    </div>
+    <div class="form-group">
+      <label for="serviceStatus">Service Status:</label>
+      <select id="serviceStatus" name="serviceStatus">
+        <option value="draft">Draft</option>
+        <option value="active">Active</option>
+        <option value="expired">Expired</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="servicePIC">Service PIC:</label>
+      <input type="text" id="servicePIC" name="servicePIC" required>
+    </div>
+    <button type="submit" class="save-button">Save</button>
+  </form>
+</div>
+
+<script>
+  // Function to preview image before uploading
+  function previewImage(event) {
+    var reader = new FileReader();
+    reader.onload = function() {
+      var preview = document.getElementById('previewImage');
+      preview.src = reader.result;
+      preview.style.display = 'block';
+    }
+    reader.readAsDataURL(event.target.files[0]);
+  }
+
+  // Event listener for file input change
+  document.getElementById('serviceImage').addEventListener('change', previewImage);
+
+  // Function to handle form submission
+  document.getElementById('serviceForm').addEventListener('submit', function(event) {
+  event.preventDefault();
+  const formData = new FormData(this);
+  fetch('/services', {
+    method: 'POST',
+    body: formData
+  })
+  .then(response => {
+    if (response.ok) {
+      alert('Service saved to Firebase!');
+      // Optionally redirect or perform other actions
+    } else {
+      throw new Error('Failed to save service');
+    }
+  })
+  .catch(error => {
+    console.error(error);
+    alert('Failed to save service');
+  });
+});
+
+</script>
+
+</body>
+</html>

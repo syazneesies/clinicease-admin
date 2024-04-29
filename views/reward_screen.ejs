@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="/styles/service_styles.css">
+</head>
+<body>
+
+<div class="topnav">
+  <a class="active" href="/home">Home</a>
+  <a href="/services">Services</a>
+  <a href="/rewards">Rewards</a>
+  <a href="/items">Item</a>
+  <a href="/transaction">Transaction</a>
+  <a href="javascript:void(0);" onclick="logout()" class="split">Log out</a>
+</div>
+
+<div style="padding-left:16px">
+  <h2>Reward Screen</h2>
+  
+  <a href="/add_reward" class="add-reward-button">Add Reward</a>
+
+  <!-- Table of Reward -->
+  <table class="rewards-table">
+    <tr>
+      <th>No</th>
+      <th>Reward Name</th>
+      <th>Reward Point</th>
+      <th>Reward Quantity</th>
+      <th>Reward Date</th>
+      <th>Reward Status</th>
+      <th>Action</th>
+    </tr>
+    <% rewards.forEach(function(reward, index) { %>
+      <tr>
+        <td><%= index + 1 %></td>
+        <td><%= reward.name %></td>
+        <td><%= reward.point %></td>
+        <td><%= reward.quantity %></td>
+        <td><%= reward.date %></td>
+        <td><%= reward.status %></td>
+        
+        <td>
+          <a href="/reward_detail_screen?id=<%=reward.id%>">View</a>
+          <a href="#" onclick="deleteReward('<%= reward.id %>')">Delete</a>
+        </td>
+      </tr>
+    <% }); %>
+  </table>
+</div>
+
+<script>
+  function logout() {
+    // Redirect the user to the login page
+    window.location.href = "/";
+  }
+
+  // Function to delete a service
+  function deleteReward(rewardId) {
+    // Confirm deletion with user
+    if (confirm("Are you sure you want to delete this reward?")) {
+        fetch(`/rewards/${rewardId}`, {
+            method: 'DELETE'
+        })
+            .then(response => {
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    console.error('Failed to delete reward');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+}
+
+  async function deleteReward(rewardId) {
+    try {
+      const response = await fetch(`/rewards/${rewardId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete reward');
+      }
+      location.reload(); 
+    } catch (error) {
+      console.error('Error deleting reward:', error);
+    }
+  }
+</script>
+
+</body>
+</html>

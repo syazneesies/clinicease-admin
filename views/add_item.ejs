@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="/styles/add_service_styles.css">
+</head>
+<body>
+
+<div class="container">
+  <h2>Add Item</h2>
+  <form id="itemForm" enctype="multipart/form-data">
+    <div class="form-group">
+      <label for="itemImage">Upload Image:</label>
+      <input type="file" id="itemImage" name="itemImage" accept="image/*" required>
+      <img id="previewImage" src="#" alt="Preview Image" style="display: none; max-width: 200px;">
+    </div>
+    <div class="form-group">
+      <label for="itemName">Item Name:</label>
+      <input type="text" id="itemName" name="itemName" required>
+    </div>
+    <div class="form-group">
+      <label for="itemDescription">Item Description:</label>
+      <textarea id="itemDescription" name="itemDescription" rows="4" required></textarea>
+    </div>
+    <div class="form-group">
+      <label for="itemDate">Item Date:</label>
+      <input type="date" id="itemDate" name="itemDate" required>
+    </div>
+    <div class="form-group">
+      <label for="itemQuantity">Item Quantity:</label>
+      <input type="number" id="itemQuantity" name="itemQuantity" required>
+    </div>
+    <div class="form-group">
+      <label for="itemPrice">Item Price (RM):</label>
+      <input type="number" id="itemPrice" name="itemPrice" required>
+    </div>
+    <div class="form-group">
+      <label for="itemStatus">Item Status:</label>
+      <select id="itemStatus" name="itemStatus">
+        <option value="draft">Draft</option>
+        <option value="active">Active</option>
+        <option value="expired">Expired</option>
+      </select>
+    </div>
+    <div class="form-group">
+        <label for="itemRemark">Item Remark:</label>
+        <textarea id="itemRemark" name="itemRemark" rows="4" required></textarea>
+      </div>
+    <button type="submit" class="save-button">Save</button>
+  </form>
+</div>
+
+<script>
+   // Function to preview image before uploading
+   function previewImage(event) {
+    var reader = new FileReader();
+    reader.onload = function() {
+      var preview = document.getElementById('previewImage');
+      preview.src = reader.result;
+      preview.style.display = 'block';
+    }
+    reader.readAsDataURL(event.target.files[0]);
+  }
+
+  // Event listener for file input change
+  document.getElementById('itemImage').addEventListener('change', previewImage);
+  
+  // Function to handle form submission
+  document.getElementById('itemForm').addEventListener('submit', function(event) {
+  event.preventDefault();
+  const formData = new FormData(this);
+  
+  fetch('/items', {
+    method: 'POST',
+    body: formData
+  })
+  .then(response => {
+    if (response.ok) {
+      alert('Item saved successfully!');
+      // Optionally, you can reset the form or perform other actions
+    } else {
+      throw new Error('Failed to save item');
+    }
+  })
+  .catch(error => {
+    console.error(error);
+    alert('Failed to save item. Please try again.');
+  });
+});
+
+
+</script>
+
+</body>
+</html>

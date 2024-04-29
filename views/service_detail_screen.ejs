@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="/styles/service_styles.css">
+</head>
+<body>
+
+<div style="padding-left:16px">
+  <h2>Service Details</h2>
+  
+  <div id="service-details">
+    <p><strong>Service Name:</strong> <span id="service-name"></span></p>
+    <p><strong>Service Description:</strong> <span id="service-description"></span></p>
+    <p><strong>Service Date:</strong> <span id="service-date"></span></p>
+    <p><strong>Service PIC:</strong> <span id="service-pic"></span></p>
+    <p><strong>Service Quantity:</strong> <span id="service-quantity"></span></p>
+    <p><strong>Service Status:</strong> <span id="service-status"></span></p>
+    <img id="service-image" src="" alt="Service Image">
+  </div>
+</div>
+
+<script>
+  // Retrieve serviceId from query parameter and fetch service details
+  const urlParams = new URLSearchParams(window.location.search);
+  const serviceId = urlParams.get('id');
+
+  // Fetch service details using the serviceId
+  fetch(`/services/${serviceId}`)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Service details not available');
+      }
+      return response.json();
+    })
+    .then(data => {
+      // Populate the service details on the page
+      document.getElementById('service-name').textContent = data.serviceName;
+      document.getElementById('service-description').textContent = data.serviceDescription;
+      document.getElementById('service-date').textContent = data.serviceDate;
+      document.getElementById('service-pic').textContent = data.servicePIC;
+      document.getElementById('service-quantity').textContent = data.serviceQuantity;
+      document.getElementById('service-status').textContent = data.serviceStatus;
+      document.getElementById('service-image').src = data.imageUrl;
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      // Display an error message to the user
+      document.getElementById('service-details').innerHTML = '<p>Error: Service details not available</p>';
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="/styles/service_styles.css">
+</head>
+<body>
+
+<div style="padding-left:16px">
+  <h2>Item Details</h2>
+  
+  <div id="item-details">
+    <p><strong>Item Name:</strong> <span id="item-name"></span></p>
+    <p><strong>Item Description:</strong> <span id="item-description"></span></p>
+    <p><strong>Item Date:</strong> <span id="item-date"></span></p>
+    <p><strong>Item Price:</strong> <span id="item-price"></span></p>
+    <p><strong>Item Status:</strong> <span id="item-status"></span></p>
+    <p><strong>Item Quantity:</strong> <span id="item-quantity"></span></p>
+    <p><strong>Item Remark:</strong> <span id="item-remark"></span></p>
+    <img id="item-image" src="" alt="Item Image">
+  </div>
+</div>
+
+<script>
+  // Retrieve itemId from query parameter and fetch service details
+  const urlParams = new URLSearchParams(window.location.search);
+  const itemId = urlParams.get('id');
+
+  // Fetch service details using the itemId
+  fetch(`/items/${itemId}`)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Item details not available');
+      }
+      return response.json();
+    })
+    .then(data => {
+      // Populate the item details on the page
+      document.getElementById('item-name').textContent = data.itemName;
+      document.getElementById('item-description').textContent = data.itemDescription;
+      document.getElementById('item-date').textContent = data.itemDate;
+      document.getElementById('item-quantity').textContent = data.itemQuantity;
+      document.getElementById('item-remark').textContent = data.itemRemark;
+      document.getElementById('item-price').textContent = data.itemPrice;
+      document.getElementById('item-status').textContent = data.itemStatus;
+      document.getElementById('item-image').src = data.imageUrl;
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      // Display an error message to the user
+      document.getElementById('item-details').innerHTML = '<p>Error: Item details not available</p>';
+    });
+</script>
+
+</body>
+</html>
