@@ -17,48 +17,47 @@
 </div>
 
 <div style="padding-left:16px">
-  <h2>Transaction Screen</h2>
+    <h2>Branch Screen</h2>
+    
+    <a href="/add_branch" class="add-branch-button">Add Branches</a>
   
-  <a href="/add_transaction" class="add-service-button">Add Transactions</a>
-
-  <!-- Table of Transaction -->
-  <table class="transaction-table">
-    <tr>
-      <th>No</th>
-      <th>Receipt Number</th>
-      <th>Transaction Value</th>
-      <th>Transaction Status</th>
-    </tr>
-    <% transactions.forEach(function(transaction, index) { %>
+    <!-- Table of Branches -->
+    <table class="branch-table">
       <tr>
-        <td><%= index + 1 %></td>
-        <td><%= transaction.receiptNumber %></td>
-        <td><%= transaction.transactionValue %></td>
-        <td><%= transaction.transactionStatus %></td>
-        <td>
-          <a href="#" onclick="deleteTransaction('<%= transaction.id %>')">Delete</a>
-
-        </td>
+        <th>No</th>
+        <th>Branch Name</th>
+        <th>Latitude</th>
+        <th>Longitude</th>
       </tr>
-    <% }); %>
-  </table>
-</div>
+      <% branches.forEach(function(branch, index) { %>
+        <tr>
+          <td><%= index + 1 %></td>
+          <td><%= branch.branchName %></td>
+          <td><%= branch.branchLocation._latitude %></td>
+          <td><%= branch.branchLocation._longitude %></td>
+          <td>
+            <a href="#" onclick="deleteBranch('<%= branch.id %>')">Delete</a>
+          </td>
+        </tr>
+      <% }); %>
+    </table>
+  </div>
 
 <script>
-    async function deleteTransaction(transactionId) {
+    async function deleteBranch(branchId) {
   try {
-    const response = await fetch(`/transactions/${transactionId}`, {
+    const response = await fetch(`/branches/${branchId}`, {
       method: 'DELETE',
     });
 
     if (!response.ok) {
-      throw new Error('Failed to delete transaction');
+      throw new Error('Failed to delete branch');
     }
 
     // Optional: Refresh the page or update the service list
     location.reload(); // Reload the page to reflect the changes
   } catch (error) {
-    console.error('Error deleting transaction:', error);
+    console.error('Error deleting branch:', error);
     // Handle error: display a message to the user, etc.
   }
 }

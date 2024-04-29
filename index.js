@@ -5,6 +5,7 @@ const serviceRoutes = require("./routes/serviceRoutes");
 const rewardRoutes = require("./routes/rewardRoutes");
 const transactionRoutes = require("./routes/transactionRoutes");
 const itemRoutes = require("./routes/itemRoutes");
+const branchRoutes = require("./routes/branchRoutes");
 const path = require("path");
 const admin = require('firebase-admin');
 
@@ -116,17 +117,18 @@ app.get('/add_reward', (req, res) => {
 
   app.use('/', transactionRoutes);
 
-  app.get('/transaction', async (req, res) => {
+  app.get('/transactions', async (req, res) => {
     try {
       // Fetch transactions data from Firestore
       const snapshot = await firestore.collection('transactions').get();
       const transactions = [];
-  
+
       snapshot.forEach(doc => {
         const transactionData = doc.data();
         const transaction = {
-          receiptId: transactionData.receiptId,
+          receiptNumber: transactionData.receiptNumber,
           transactionValue : transactionData.transactionValue,
+          transactionStatus : transactionData.transactionStatus,
         };
         transactions.push(transaction);
       });
@@ -182,6 +184,64 @@ app.get('/add_item', (req, res) => {
     res.render('item_detail_screen');
   });
 
+  // Include serviceRoutes
+app.use('/', branchRoutes);
+
+app.get('/branches', async (req, res) => {
+  try {
+    // Fetch services data from Firestore
+    const snapshot = await firestore.collection('branch').get();
+    const branches = [];
+
+    snapshot.forEach(doc => {
+      const branchData = doc.data();
+      const branch = {
+        branchName: branchData.branchName,
+        branchLocation: branchData.branchLocation,
+      };
+      branches.push(branch);
+    });
+
+    // Render the service_screen.ejs page with the services data
+    res.render('branch_screen', { branches: branches });
+  } catch (error) {
+    console.error('Error fetching branches:', error);
+    res.status(500).send('Error fetching branches');
+  }
+});
+
+// Route to serve branches data as JSON
+app.get('/api/branches', async (req, res) => {
+  try {
+    // Fetch branches data from Firestore
+    const snapshot = await firestore.collection('branch').get();
+    const branches = [];
+
+    snapshot.forEach(doc => {
+      const branchData = doc.data();
+      const branch = {
+        id: doc.id,
+        branchName: branchData.branchName,
+        branchLocation: branchData.branchLocation,
+      };
+      branches.push(branch);
+    });
+
+    // Respond with the branches data as JSON
+    res.status(200).json(branches);
+  } catch (error) {
+    console.error('Error fetching branches:', error);
+    res.status(500).json({ error: 'Error fetching branches' });
+  }
+});
+
+
+app.get('/add_branch', (req, res) => {
+    // Render the add_service_screen.ejs page
+    res.render("add_branch");
+  });
+
+
 // Start server
-const PORT = process.env.PORT || 3002;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

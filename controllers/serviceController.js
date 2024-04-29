@@ -15,21 +15,26 @@ const storage = admin.storage();
 // Controller to handle adding a new service
 exports.addService = async (req, res) => {
   try {
-    const { serviceName, serviceDescription, serviceDate, serviceQuantity, serviceStatus, servicePIC } = req.body;
+    const { serviceName, serviceDescription, serviceDate, serviceQuantity, serviceStatus, servicePIC, serviceTimes } = req.body;
     const serviceImage = req.file; 
 
     if (!serviceImage) {
       return res.status(400).json({ error: 'No file uploaded' });
     }
 
-    // Define the folder path
-    const folderPath = 'servicesImages/';
-    // Construct the file path within the specified folder
-    const filePath = folderPath + serviceImage.originalname;
-
     // Upload image to Firebase Storage
-    const imageRef = storage.bucket().file(filePath); 
-    await imageRef.save(serviceImage.buffer);
+    const storage = admin.storage();
+    const bucket = storage.bucket();
+    const folderPath = 'servicesImages/';
+    const fileName = Date.now() + '-' + serviceImage.originalname; // Add timestamp to make filename unique
+    const filePath = folderPath + fileName;
+
+    const imageRef = bucket.file(filePath);
+    await imageRef.save(serviceImage.buffer, {
+      metadata: {
+        contentType: serviceImage.mimetype // Set the content type of the file
+      }
+    });
 
     // Get download URL of the uploaded image
     const imageUrl = await imageRef.getSignedUrl({
@@ -37,32 +42,43 @@ exports.addService = async (req, res) => {
       expires: '03-26-2025'
     });
 
-     // Generate a unique ID for the service
+     // Convert serviceTimes back to array of timestamps
+     let parsedServiceTimes;
+     try {
+       parsedServiceTimes = JSON.parse(serviceTimes);
+     } catch (error) {
+       console.error('Invalid JSON format for serviceTimes:', error);
+       return res.status(400).json({ error: 'Invalid JSON format for serviceTimes' });
+     }
+
+      // Convert serviceDate to timestamp
+      const serviceDateTimestamp = Date.parse(serviceDate);
+ 
+     // Save form data to Firestore
      const serviceId = admin.firestore().collection("services").doc().id;
-
-    // Save form data to Firestore
-    await admin.firestore().collection("services").doc(serviceId).set({
-      serviceName: serviceName,
-      serviceDescription: serviceDescription,
-      serviceDate: serviceDate,
-      serviceQuantity: serviceQuantity,
-      serviceStatus: serviceStatus,
-      servicePIC: servicePIC,
-      imageUrl: imageUrl
-    });
-
-    res.status(201).json({
-      status: 'success',
-      message: 'Service saved to Firebase!'
-    });
-  } catch (err) {
-    console.error("Error adding service: ", err);
-    res.status(500).json({
-      status: 'error',
-      message: 'Failed to save service to Firebase'
-    });
-  }
-};
+     await admin.firestore().collection("services").doc(serviceId).set({
+       serviceName: serviceName,
+       serviceDescription: serviceDescription,
+       serviceDate: serviceDateTimestamp, 
+       serviceQuantity: serviceQuantity, // Already converted to number on the client-side
+       serviceStatus: serviceStatus,
+       servicePIC: servicePIC,
+       serviceTimes: parsedServiceTimes,
+       imageUrl: imageUrl[0] // imageUrl is an array, so access the first element
+     });
+ 
+     res.status(201).json({
+       status: 'success',
+       message: 'Service saved to Firebase!'
+     });
+   } catch (err) {
+     console.error("Error adding service: ", err);
+     res.status(500).json({
+       status: 'error',
+       message: 'Failed to save service to Firebase'
+     });
+   }
+ };
 
 // Function to fetch services from Firestore
 exports.getServices = async (req, res) => {

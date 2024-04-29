@@ -1,7 +1,8 @@
 class Transaction {
-    constructor(receiptID, transactionValue) {
-      this.receiptID = receiptID;
+    constructor(receiptNumber, transactionValue, transactionStatus) {
+      this.receiptNumber = receiptNumber;
       this.transactionValue = transactionValue;
+      this.transactionStatus = transactionStatus;
     }
   }
   

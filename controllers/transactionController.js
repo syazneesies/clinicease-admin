@@ -12,11 +12,11 @@ if (!admin.apps.length) {
 // Controller to handle adding a new transaction
 exports.addTransaction = async (req, res) => {
   try {
-    const { receiptID, transactionValue } = req.body;
-    console.log("receiptID:", receiptID, "transactionValue:", transactionValue);
+    const { receiptNumber, transactionValue, transactionStatus} = req.body;
+    console.log("Receipt Number:", receiptNumber, "transactionValue:", transactionValue);
     
-    if (!receiptID || !transactionValue) {
-        throw new Error("Missing receiptID or transactionValue in request body");
+    if (!receiptNumber || !transactionValue || !transactionStatus) {
+        throw new Error("Missing receipt number  or transaction value or transaction status in request body");
     }
 
     // Generate a unique ID for the transaction
@@ -24,8 +24,9 @@ exports.addTransaction = async (req, res) => {
 
     // Save form data to Firestore
     await admin.firestore().collection("transactions").doc(transactionId).set({
-      receiptID: receiptID,
+      receiptNumber: receiptNumber,
       transactionValue: transactionValue,
+      transactionStatus: transactionStatus,
     });
 
     res.status(201).json({
@@ -41,30 +42,65 @@ exports.addTransaction = async (req, res) => {
   }
 };
 
-// Function to fetch transaction from Firestore
+// Function to fetch transactions from Firestore
+// exports.getTransactions = async (req, res) => {
+//   try {
+//     // Get reference to the Firestore collection
+//     const snapshot = await admin.firestore().collection('transactions').get();
+//     const transactions = [];
+   
+//     // Iterate through each document and push transaction details to transactions array
+//     snapshot.forEach(doc => {
+//       const transaction = doc.data();
+//       transactions.push({
+//         id: doc.id,
+//         receiptNumber: transaction.receiptNumber,
+//         transactionValue: transaction.transactionValue, 
+//         transactionStatus: transaction.transactionStatus,
+//       });
+//     });
+
+//     // Log the transactions array for debugging
+//     console.log("Transactions:", transactions);
+
+//     // Render the transaction_screen.ejs page with the transactions data
+//     res.render('transaction_screen', { transactions : transactions });
+//   } catch (err) {
+//     console.error("Error fetching transactions: ", err);
+//     res.status(500).json({
+//       status: 'error',
+//       message: 'Failed to fetch transactions'
+//     });
+//   }
+// };
+
+
+// Controller method to delete a transaction by ID
+// Function to fetch rewards from Firestore
 exports.getTransactions = async (req, res) => {
   try {
     // Get reference to the Firestore collection
     const snapshot = await admin.firestore().collection('transactions').get();
     const transactions = [];
 
-    // Iterate through each document and push transactions details to transactions array
+    // Iterate through each document and push reward details to services array
     snapshot.forEach(doc => {
       const transaction = doc.data();
-      services.push({
+      transactions.push({
         id: doc.id,
-        receiptId: transaction.receiptId,
-        transactionValue: transaction.transactionValue, 
+        receiptNumber: transaction.receiptNumber,
+        transactionValue: transaction.transactionValue,
+        transactionStatus: transaction.transactionStatus,
       });
     });
 
-    // Check if transactions array is populated
-    console.log("Transaction:", transactions);
+    // Check if services array is populated
+    console.log("Transactions", transactions);
 
-    // Render the transaction_screen.ejs page with the transactions data
-    res.render('transaction_screen', { transactions : transactions });
+    // Render the service_screen.ejs page with the reward data
+    res.render('transaction_screen', { transactions: transactions});
   } catch (err) {
-    console.error("Error fetching transactions: ", err);
+    console.error("Error fetching transaction: ", err);
     res.status(500).json({
       status: 'error',
       message: 'Failed to fetch transactions'
@@ -72,22 +108,21 @@ exports.getTransactions = async (req, res) => {
   }
 };
 
-// Controller method to delete a transaction by ID
-exports.deleteTransactionById = async (req, res) => {
-    try {
-      const transactionId = req.params.id;
-      
-      // Delete the service from Firestore
-      await admin.firestore().collection('transactions').doc(transactionId).delete();
-  
-      res.status(204).end(); 
-    } catch (err) {
-      console.error('Error deleting transaction:', err);
-      res.status(500).json({
-        error: 'Failed to delete transaction',
-      });
-    }
-  };
-  
 
+// Controller method to delete a reward by ID
+exports.deleteTransactionById = async (req, res) => {
+  try {
+    const transactionId = req.params.id;
+    
+    // Delete the service from Firestore
+    await admin.firestore().collection('transactions').doc(transactionId).delete();
+
+    res.status(204).end();
+  } catch (err) {
+    console.error('Error deleting transactions:', err);
+    res.status(500).json({
+      error: 'Failed to delete transactions',
+    });
+  }
+};
 

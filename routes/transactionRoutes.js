@@ -10,6 +10,6 @@ router.post('/transactions', transactionController.addTransaction);
 router.get('/transactions', transactionController.getTransactions);
 
 // Route to delete a service by ID
-router.delete('/:id', transactionController.deleteTransactionById);
+router.delete('/transactions/:id', transactionController.deleteTransactionById);
 
 module.exports = router;

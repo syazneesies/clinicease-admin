@@ -4,7 +4,7 @@ const router = express.Router();
 const upload = require('../middleware/multerMiddleware');
 
 // Route to add a new service
-router.post('/services', upload.single('serviceImage'), serviceController.addService);
+router.post('/addService', upload.single('serviceImage'), serviceController.addService);
 
 // Define route for handling file upload
 router.post('/upload', upload.single('serviceImage'), serviceController.addService);
