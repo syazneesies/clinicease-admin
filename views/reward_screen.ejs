@@ -38,7 +38,7 @@
         <td><%= reward.name %></td>
         <td><%= reward.point %></td>
         <td><%= reward.quantity %></td>
-        <td><%= reward.date %></td>
+        <td><%= formatDate(reward.date) %></td>
         <td><%= reward.status %></td>
         
         <td>
@@ -51,6 +51,17 @@
 </div>
 
 <script>
+   function formatDate(dateString) {
+    // Parse dateString to Date object
+    const date = new Date(dateString.toDate());
+    // Get day, month, and year components
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    // Return formatted date string
+    return `${day}-${month}-${year}`;
+  }
+
   function logout() {
     // Redirect the user to the login page
     window.location.href = "/";

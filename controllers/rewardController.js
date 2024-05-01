@@ -42,12 +42,32 @@ exports.addReward = async (req, res) => {
       expires: '03-26-2025'
     });
 
+    // Convert serviceQuantity to number
+    const parsedRewardQuantity = parseInt(rewardQuantity);
+
+     let rewardDateTimestamp;
+      if (!isNaN(rewardDate)) {
+        // If rewardDate is already in milliseconds format
+        rewardDateTimestamp = parseInt(rewardDate);
+        if (isNaN(new Date(rewardDateTimestamp).getTime())) {
+          console.error('Invalid format for rewardDate:', rewardDate);
+          return res.status(400).json({ error: 'Invalid format for rewardDate' });
+        }
+      } else {
+        // Try to parse rewardDate into milliseconds
+        rewardDateTimestamp = Date.parse(rewardDate);
+        if (isNaN(rewardDateTimestamp)) {
+          console.error('Invalid format for rewardDate:', rewardDate);
+          return res.status(400).json({ error: 'Invalid format for rewardDate' });
+        }
+      }
+
     // Save form data to Firestore
     await admin.firestore().collection("rewards").doc(rewardId).set({
       rewardName: rewardName,
       rewardDescription: rewardDescription,
-      rewardDate: rewardDate,
-      rewardQuantity: rewardQuantity,
+      rewardDate: new Date(rewardDateTimestamp),
+      rewardQuantity: parsedRewardQuantity,
       rewardPIC: rewardPIC,
       rewardStatus: rewardStatus,
       rewardPoint: rewardPoint,
