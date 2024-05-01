@@ -6,6 +6,7 @@ const rewardRoutes = require("./routes/rewardRoutes");
 const transactionRoutes = require("./routes/transactionRoutes");
 const itemRoutes = require("./routes/itemRoutes");
 const branchRoutes = require("./routes/branchRoutes");
+const formatDateMiddleware = require('./middleware/dateMiddleware');
 const path = require("path");
 const admin = require('firebase-admin');
 
@@ -22,6 +23,12 @@ app.use(express.static(path.join(__dirname, "public")));
 // Body parser middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Use the formatDate middleware
+app.use((req, res, next) => {
+  res.locals.formatDate = formatDateMiddleware;
+  next();
+});
 
 // Use authentication routes
 app.use("/auth", authRoutes);

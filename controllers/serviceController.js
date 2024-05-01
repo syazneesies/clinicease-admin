@@ -32,7 +32,7 @@ exports.addService = async (req, res) => {
     const imageRef = bucket.file(filePath);
     await imageRef.save(serviceImage.buffer, {
       metadata: {
-        contentType: serviceImage.mimetype // Set the content type of the file
+        contentType: serviceImage.mimetype 
       }
     });
 
@@ -42,29 +42,49 @@ exports.addService = async (req, res) => {
       expires: '03-26-2025'
     });
 
-     // Convert serviceTimes back to array of timestamps
-     let parsedServiceTimes;
-     try {
-       parsedServiceTimes = JSON.parse(serviceTimes);
-     } catch (error) {
-       console.error('Invalid JSON format for serviceTimes:', error);
-       return res.status(400).json({ error: 'Invalid JSON format for serviceTimes' });
-     }
+      // Parse serviceTimes as JSON
+    const parsedServiceTimes = JSON.parse(serviceTimes);
 
-      // Convert serviceDate to timestamp
-      const serviceDateTimestamp = Date.parse(serviceDate);
+    // Ensure parsedServiceTimes is treated as an array
+    if (!Array.isArray(parsedServiceTimes)) {
+      console.error('serviceTimes is not an array');
+      return res.status(400).json({ error: 'serviceTimes is not an array' });
+    }
+
+    // Convert serviceTimes array elements to timestamps
+    const parsedServiceTimesTimestamps = parsedServiceTimes.map(time => new Date(parseInt(time)));
+
+    // Convert serviceQuantity to number
+    const parsedServiceQuantity = parseInt(serviceQuantity);
+
+     let serviceDateTimestamp;
+      if (!isNaN(serviceDate)) {
+        // If serviceDate is already in milliseconds format
+        serviceDateTimestamp = parseInt(serviceDate);
+        if (isNaN(new Date(serviceDateTimestamp).getTime())) {
+          console.error('Invalid format for serviceDate:', serviceDate);
+          return res.status(400).json({ error: 'Invalid format for serviceDate' });
+        }
+      } else {
+        // Try to parse serviceDate into milliseconds
+        serviceDateTimestamp = Date.parse(serviceDate);
+        if (isNaN(serviceDateTimestamp)) {
+          console.error('Invalid format for serviceDate:', serviceDate);
+          return res.status(400).json({ error: 'Invalid format for serviceDate' });
+        }
+      }
  
      // Save form data to Firestore
      const serviceId = admin.firestore().collection("services").doc().id;
      await admin.firestore().collection("services").doc(serviceId).set({
        serviceName: serviceName,
        serviceDescription: serviceDescription,
-       serviceDate: serviceDateTimestamp, 
-       serviceQuantity: serviceQuantity, // Already converted to number on the client-side
+       serviceDate: new Date(serviceDateTimestamp),
+       serviceQuantity: parsedServiceQuantity,
        serviceStatus: serviceStatus,
        servicePIC: servicePIC,
-       serviceTimes: parsedServiceTimes,
-       imageUrl: imageUrl[0] // imageUrl is an array, so access the first element
+       serviceTimes: parsedServiceTimesTimestamps,
+       imageUrl: imageUrl
      });
  
      res.status(201).json({

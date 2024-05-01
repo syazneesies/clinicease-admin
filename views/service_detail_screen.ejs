@@ -24,6 +24,25 @@
   // Retrieve serviceId from query parameter and fetch service details
   const urlParams = new URLSearchParams(window.location.search);
   const serviceId = urlParams.get('id');
+  
+  function formatDate(timestamp) {
+    // Check if timestamp is provided
+    if (!timestamp) return '';
+
+    // Convert timestamp to milliseconds
+    const milliseconds = timestamp._seconds * 1000 + timestamp._nanoseconds / 1000000;
+    
+    // Create a new Date object from milliseconds
+    const date = new Date(milliseconds);
+    
+    // Get day, month, and year components
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    
+    // Return formatted date string
+    return `${day}-${month}-${year}`;
+}
 
   // Fetch service details using the serviceId
   fetch(`/services/${serviceId}`)
@@ -37,7 +56,7 @@
       // Populate the service details on the page
       document.getElementById('service-name').textContent = data.serviceName;
       document.getElementById('service-description').textContent = data.serviceDescription;
-      document.getElementById('service-date').textContent = data.serviceDate;
+      document.getElementById('service-date').textContent = formatDate(data.serviceDate);
       document.getElementById('service-pic').textContent = data.servicePIC;
       document.getElementById('service-quantity').textContent = data.serviceQuantity;
       document.getElementById('service-status').textContent = data.serviceStatus;

@@ -48,12 +48,6 @@
       <label for="servicePIC">Service PIC:</label>
       <input type="text" id="servicePIC" name="servicePIC" required>
     </div>
-    <div class="form-group">
-      <label for="serviceBranchId">Service Branch:</label>
-      <select id="serviceBranchId" name="serviceBranchId" required>
-        <!-- Branch options will be populated dynamically -->
-      </select>
-    </div>
     <button type="submit" class="save-button">Save</button>
   </form>
 </div>
@@ -80,55 +74,36 @@
     input.type = 'time';
     input.className = 'serviceTime'; // Set class instead of name
     serviceTimesContainer.appendChild(input);
-  }
-
-  // Function to populate branches dropdown
-  function populateBranchesDropdown() {
-  fetch('/api/branches')
-    .then(response => response.json())
-    .then(data => {
-      var serviceBranchIdSelect = document.getElementById('serviceBranchId');
-      // Clear existing options
-      serviceBranchIdSelect.innerHTML = '';
-      data.forEach(branch => {
-        var option = document.createElement('option');
-        option.value = branch.id; // Set the value of the option to the branch id
-        option.textContent = branch.branchName; // Set the text content to the branch name
-        serviceBranchIdSelect.appendChild(option);
-      });
-    })
-    .catch(error => console.error('Error fetching branches:', error));
 }
-  // Populate branches dropdown when the page loads
-  document.addEventListener('DOMContentLoaded', function() {
-    populateBranchesDropdown();
-  });
 
   // Function to handle form submission
-  document.getElementById('serviceForm').addEventListener('submit', function(event) {
-    event.preventDefault();
-    const formData = new FormData(this);
+  document.getElementById('serviceForm').addEventListener('submit', async function(event) {
+  event.preventDefault();
+  const formData = new FormData(this);
 
     // Convert serviceDate to timestamp
-    formData.set('serviceDate', new Date(formData.get('serviceDate')).getTime());
+    const serviceDateInput = formData.get('serviceDate');
+    const serviceDateTimestamp = new Date(serviceDateInput).getTime();
+    formData.set('serviceDate', serviceDateTimestamp);
 
     // Convert serviceTime inputs to an array of timestamps
-    const serviceTimeInputs = document.querySelectorAll('.serviceTime');
-    const serviceTimes = Array.from(serviceTimeInputs).map(input => {
-      const timeString = input.value;
-      const [hours, minutes] = timeString.split(':');
-      const date = new Date();
-      date.setHours(hours);
-      date.setMinutes(minutes);
-      return date.getTime();
+    var serviceTimeInputs = document.querySelectorAll('.serviceTime');
+    var serviceTimes = [];
+    serviceTimeInputs.forEach(function(input) {
+      // Convert time string to timestamp
+      var timeString = input.value;
+      var timeParts = timeString.split(':');
+      var hours = parseInt(timeParts[0]);
+      var minutes = parseInt(timeParts[1]);
+      var timestamp = new Date().setHours(hours, minutes);
+      serviceTimes.push(timestamp); // Push each timestamp into the array
     });
-
-    // Remove any previous serviceTimes from formData
-    formData.delete('serviceTimes');
-    // Append the updated serviceTimes array as a JSON string
+    
+    // Ensure that serviceTimes is sent as an array in the form data
     formData.append('serviceTimes', JSON.stringify(serviceTimes));
-
     // Convert serviceQuantity to number
+
+    
     formData.set('serviceQuantity', parseInt(formData.get('serviceQuantity')));
 
     // Submit form data
@@ -139,7 +114,8 @@
     .then(response => {
       if (response.ok) {
         alert('Service saved to Firebase!');
-        // Optionally redirect or perform other actions
+        window.location.href = '/services';
+        
       } else {
         throw new Error('Failed to save service');
       }
