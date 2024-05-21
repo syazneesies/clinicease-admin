@@ -32,7 +32,7 @@
     </div>
     <div class="form-group">
       <label for="itemPrice">Item Price (RM):</label>
-      <input type="number" id="itemPrice" name="itemPrice" required>
+      <input type="number" id="itemPrice" name="itemPrice" step="0.01" required>
     </div>
     <div class="form-group">
       <label for="itemStatus">Item Status:</label>
@@ -67,28 +67,43 @@
   
   // Function to handle form submission
   document.getElementById('itemForm').addEventListener('submit', function(event) {
-  event.preventDefault();
-  const formData = new FormData(this);
-  
-  fetch('/items', {
-    method: 'POST',
-    body: formData
-  })
-  .then(response => {
-    if (response.ok) {
-      alert('Item saved successfully!');
-      // Optionally, you can reset the form or perform other actions
-    } else {
-      throw new Error('Failed to save item');
+    event.preventDefault();
+    
+    const formData = new FormData(this);
+    
+    // Parse itemQuantity as integer
+    const itemQuantity = parseInt(formData.get('itemQuantity'));
+    if (isNaN(itemQuantity)) {
+      alert('Item Quantity must be an integer.');
+      return;
     }
-  })
-  .catch(error => {
-    console.error(error);
-    alert('Failed to save item. Please try again.');
+    formData.set('itemQuantity', itemQuantity);
+
+    // Parse itemPrice as float
+    const itemPrice = parseFloat(formData.get('itemPrice'));
+    if (isNaN(itemPrice)) {
+      alert('Item Price must be a valid number.');
+      return;
+    }
+    formData.set('itemPrice', itemPrice);
+
+    fetch('/items', {
+      method: 'POST',
+      body: formData
+    })
+    .then(response => {
+      if (response.ok) {
+        alert('Item saved successfully!');
+        // Optionally, you can reset the form or perform other actions
+      } else {
+        throw new Error('Failed to save item');
+      }
+    })
+    .catch(error => {
+      console.error(error);
+      alert('Failed to save item. Please try again.');
+    });
   });
-});
-
-
 </script>
 
 </body>

@@ -39,6 +39,9 @@ exports.addItem = async (req, res) => {
 
      // Generate a unique ID for the service
      const itemId = admin.firestore().collection("items").doc().id;
+     const parsedItemPrice = parseFloat(itemPrice);
+
+     const parsedItemQuantity = parseInt(itemQuantity);
 
 
     // Save form data to Firestore
@@ -46,8 +49,8 @@ exports.addItem = async (req, res) => {
       itemName: itemName,
       itemDescription: itemDescription,
       itemDate: itemDate,
-      itemQuantity: itemQuantity,
-      itemPrice : itemPrice,
+      itemQuantity: parsedItemQuantity,
+      itemPrice : parsedItemPrice ,
       itemStatus : itemStatus,
       itemRemark: itemRemark,
       imageUrl: imageUrl,
