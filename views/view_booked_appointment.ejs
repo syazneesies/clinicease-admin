@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link rel="stylesheet" type="text/css" href="/styles/service_styles.css">
+  <style>
+    .status-booked {
+      background-color: grey;
+      color: black;
+      border-radius: 20px;
+      padding: 5px 10px;
+    }
+    .status-attend {
+      background-color: green;
+      color: black;
+      border-radius: 20px;
+      padding: 5px 10px;
+    }
+    .status-absent {
+      background-color: red;
+      color: black;
+      border-radius: 20px;
+      padding: 5px 10px;
+    }
+  </style>
+</head>
+<body>
+
+<%- include('partials/topbar'); %>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="mb-4">
+        <img src="/images/booked_appointment_banner.png" class="img-fluid" alt="Appointment Banner">
+      </div>
+    </div>
+  </div>
+
+  <div class="row mb-3">
+    <div class="col-lg-6 offset-lg-3">
+      <!-- Search Functionality -->
+      <div class="input-group">
+        <input type="text" id="searchInput" onkeyup="searchBookings()" class="form-control" placeholder="Search by Service Name">
+        <div class="input-group-append">
+          <button class="btn btn-primary" onclick="searchBookings()"><i class="fa fa-search"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mb-3">
+    <div class="col-lg-6 offset-lg-3">
+      <!-- Print Button with Print Icon -->
+      <button onclick="printTable()" class="btn btn-primary"><i class="fa fa-print"></i> Print</button>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-12">
+      <!-- Table of Booked Services -->
+      <div class="table-responsive">
+        <table class="table">
+          <thead class="thead-light">
+            <tr>
+              <th>No</th>
+              <th>Service Name</th>
+              <th>Full Name</th>
+              <th>Phone Number</th>
+              <th>Service Date</th>
+              <th>Service Time</th>
+              <th>Created At</th>
+              <th>Branch Name</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="bookedServicesTable">
+            <% bookedServices.forEach(function(service, index) { %>
+              <tr>
+                <td><%= index + 1 %></td>
+                <td><%= service.serviceName %></td>
+                <td><%= service.fullName %></td>
+                <td><%= service.phoneNumber %></td>
+                <td><%= service.serviceDate.toLocaleDateString() %></td>
+                <td><%= service.serviceTimes.toLocaleTimeString() %></td>
+                <td><%= service.createdAt.toLocaleString() %></td>
+                <td><%= service.selectedBranch[0].branchName %></td>
+                <td><span class="<%= 'status-' + service.status.toLowerCase() %>"><%= service.status %></span></td>
+                <td>
+                  <!-- Action Buttons -->
+                  
+                  <button class="btn btn-sm btn-primary" onclick="openQRModal('<%= service.bookedserviceid %>')"><i class="fa fa-qrcode"></i> Update Status</button>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- QR Code Scan Modal -->
+<div class="modal fade" id="qrModal" tabindex="-1" role="dialog" aria-labelledby="qrModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="qrModalLabel">Scan QR Code</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div id="qrReader" style="width: 100%"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Include jQuery and Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+<script>
+  let currentBookedServiceId = null;
+
+  function openQRModal(bookedServiceId) {
+    currentBookedServiceId = bookedServiceId;
+    $('#qrModal').modal('show');
+    startQRScanner();
+  }
+
+  function startQRScanner() {
+    const qrReader = new Html5Qrcode("qrReader");
+    qrReader.start(
+      { facingMode: "environment" },
+      {
+        fps: 10,
+        qrbox: 250
+      },
+      (decodedText, decodedResult) => {
+        // Handle on success condition with the decoded text
+        if (decodedText === currentBookedServiceId) {
+          updateStatus(currentBookedServiceId);
+        } else {
+          alert("Scanned QR code does not match the current service.");
+        }
+        qrReader.stop().then(() => {
+          $('#qrModal').modal('hide');
+        }).catch(err => {
+          console.error(err);
+        });
+      },
+      (errorMessage) => {
+        // parse error, ignore it.
+      }
+    ).catch(err => {
+      console.error(err);
+    });
+  }
+
+  function updateStatus(bookedServiceId) {
+    const status = prompt("Enter new status (attend/absent):");
+    if (status !== "attend" && status !== "absent") {
+      alert("Invalid status!");
+      return;
+    }
+    
+    fetch(`/update_status/${bookedServiceId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ status }),
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        location.reload();
+      } else {
+        alert("Error updating status!");
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
+  }
+
+  function searchBookings() {
+    const input = document.getElementById("searchInput");
+    const filter = input.value.toUpperCase();
+    const table = document.getElementById("bookedServicesTable");
+    const tr = table.getElementsByTagName("tr");
+
+    for (let i = 0; i < tr.length; i++) {
+      const td = tr[i].getElementsByTagName("td")[1];
+      if (td) {
+        const txtValue = td.textContent || td.innerText;
+        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+          tr[i].style.display = "";
+        } else {
+          tr[i].style.display = "none";
+        }
+      }
+    }
+  }
+
+  function printTable() {
+    window.print();
+  }
+</script>
+
+</body>
+</html>

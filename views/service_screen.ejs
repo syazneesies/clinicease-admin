@@ -2,50 +2,91 @@
 <html>
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
   <link rel="stylesheet" type="text/css" href="/styles/service_styles.css">
 </head>
+ <!-- Bootstrap JS and dependencies -->
+ <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+ <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+ <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
 <body>
 
-<div class="topnav">
-  <a class="active" href="/home">Home</a>
-  <a href="/services">Services</a>
-  <a href="/rewards">Rewards</a>
-  <a href="/items">Item</a>
-  <a href="/transactions">Transaction</a>
-  <a href="/branches">Branch</a>
-  <a href="javascript:void(0);" onclick="logout()" class="split">Log out</a>
-</div>
+  <!-- Include Navigation -->
+  <%- include('partials/topbar'); %>
 
-<div style="padding-left:16px">
-  <h2>Service Screen</h2>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="mb-4">
+        <img src="/images/service_appointment_banner.png" class="img-fluid" alt="Service Appointment Banner">
+      </div>
+    </div>
+  </div>
+
+  <div class="row mb-3">
+    <div class="col-lg-6 offset-lg-3">
+      <!-- Search Functionality -->
+      <div class="input-group">
+        <input type="text" id="searchInput" onkeyup="searchService()" class="form-control" placeholder="Search by Service Name">
+        <div class="input-group-append">
+          <button class="btn btn-primary" onclick="searchService()"><i class="fa fa-search"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
   
-  <a href="/add_service" class="add-service-button">Add Service</a>
+  <div class="row mb-3">
+    <div class="col-lg-6 offset-lg-3">
+      <!-- Print Button with Print Icon -->
+      <button onclick="printTable()" class="btn btn-primary"><i class="fa fa-print"></i> Print</button>
+    </div>
+  </div>
 
-  <!-- Table of Services -->
-  <table class="services-table">
-    <tr>
-      <th>No</th>
-      <th>Service Name</th>
-      <th>Service Quantity</th>
-      <th>Service Date</th>
-      <th>Service Status</th>
-      <th>Action</th>
-    </tr>
-    <% services.forEach(function(service, index) { %>
-      <tr>
-        <td><%= index + 1 %></td>
-        <td><%= service.name %></td>
-        <td><%= service.quantity %></td>
-        <td><%= formatDate(service.date) %></td>
-        <td><%= service.status %></td>
-        <td>
-          <a href="/service_detail_screen?id=<%= service.id %>">View</a>
-          <a href="#" onclick="deleteService('<%= service.id %>')">Delete</a>
-        </td>
-      </tr>
-    <% }); %>
-  </table>
+      <!-- Table of Services -->
+      <div class="table-responsive">
+        <table class="table">
+          <thead class="thead-light">
+            <tr>
+              <th scope="col">No</th>
+              <th scope="col">Service Name</th>
+              <th scope="col">Service Quantity</th>
+              <th scope="col">Service Date</th>
+              <th scope="col">Service Status</th>
+              <th scope="col">Action</th>
+            </tr>
+          </thead>
+          <tbody id="servicesTable">
+            <% services.forEach(function(service, index) { %>
+              <tr>
+                <td><%= index + 1 %></td>
+                <td><%= service.name %></td>
+                <td><%= service.quantity %></td>
+                <td><%= formatDate(service.date) %></td>
+                <td>
+                  <% if (service.status === 'active') { %>
+                    <span class="badge badge-success">Active</span>
+                  <% } else { %>
+                    <span class="badge badge-danger">Inactive</span>
+                  <% } %>
+                </td>
+                <td>
+                  <!-- View Icon -->
+                  <a href="/service_detail_screen?id=<%= service.id %>"><i class="fa fa-eye"></i></a>
+                  <!-- Delete Icon -->
+                  <a href="#" onclick="deleteService('<%= service.id %>')"><i class="fa fa-trash"></i></a>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 </div>
+
 
 <script>
   // Function to format date as DD-MM-YYYY
@@ -83,6 +124,31 @@
       console.error('Error deleting service:', error);
       // Handle error: display a message to the user, etc.
     }
+  }
+
+  // Function to search services by service name
+  function searchService() {
+    const input = document.getElementById("searchInput");
+    const filter = input.value.toUpperCase();
+    const table = document.getElementById("servicesTable");
+    const tr = table.getElementsByTagName("tr");
+
+    for (let i = 0; i < tr.length; i++) {
+      const td = tr[i].getElementsByTagName("td")[1];
+      if (td) {
+        const txtValue = td.textContent || td.innerText;
+        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+          tr[i].style.display = "";
+        } else {
+          tr[i].style.display = "none";
+        }
+      }
+    }
+  }
+
+  // Function to print the table
+  function printTable() {
+    window.print();
   }
 </script>
 

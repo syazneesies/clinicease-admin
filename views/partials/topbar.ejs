@@ -1,0 +1,80 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="/home">ClinicEase Admin</a>
+    <button class="navbar-toggler custom-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="/home">Home</a>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownServices" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Services
+          </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdownServices">
+            <a class="dropdown-item" href="/services">View Services</a>
+            <a class="dropdown-item" href="/add_service">Add Services</a>
+            <a class="dropdown-item" href="/booked_service">View Booked Appointment</a>
+          </div>
+        </li>
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownServices" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Rewards
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdownServices">
+              <a class="dropdown-item" href="/rewards">View Rewards</a>
+              <a class="dropdown-item" href="/add_reward">Add Rewards</a>
+              <a class="dropdown-item" href="/purchased_reward">View Purchased Rewards</a>
+            </div>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownServices" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Items
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdownServices">
+              <a class="dropdown-item" href="/items">View Items</a>
+              <a class="dropdown-item" href="/add_item">Add Items</a>
+              <a class="dropdown-item" href="/purchased_item">View Purchased Items</a>
+            </div>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownServices" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Transaction
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdownServices">
+              <a class="dropdown-item" href="/transactions">View transaction</a>
+              <a class="dropdown-item" href="/add_transaction">Add transaction</a>
+            </div>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/">Log out</a>
+          </li>
+      </ul>
+    </div>
+  </nav>
+
+<style>
+  .navbar-brand {
+    display: flex;
+    align-items: center;
+    margin-left: 10px;
+  }
+
+  .custom-toggler {
+    border: none;
+    background-color: transparent;
+    padding: 0;
+  }
+
+  .hamburger-icon {
+    width: 30px;
+    height: auto;
+  }
+
+  @media (min-width: 992px) {
+    .custom-toggler {
+      display: none;
+    }
+  }
+</style>

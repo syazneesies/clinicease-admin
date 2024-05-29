@@ -2,109 +2,177 @@
 <html>
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <link rel="stylesheet" type="text/css" href="/styles/add_service_styles.css">
 </head>
 <body>
 
-<div class="container">
-  <h2>Add Item</h2>
-  <form id="itemForm" enctype="multipart/form-data">
-    <div class="form-group">
-      <label for="itemImage">Upload Image:</label>
-      <input type="file" id="itemImage" name="itemImage" accept="image/*" required>
-      <img id="previewImage" src="#" alt="Preview Image" style="display: none; max-width: 200px;">
-    </div>
-    <div class="form-group">
-      <label for="itemName">Item Name:</label>
-      <input type="text" id="itemName" name="itemName" required>
-    </div>
-    <div class="form-group">
-      <label for="itemDescription">Item Description:</label>
-      <textarea id="itemDescription" name="itemDescription" rows="4" required></textarea>
-    </div>
-    <div class="form-group">
-      <label for="itemDate">Item Date:</label>
-      <input type="date" id="itemDate" name="itemDate" required>
-    </div>
-    <div class="form-group">
-      <label for="itemQuantity">Item Quantity:</label>
-      <input type="number" id="itemQuantity" name="itemQuantity" required>
-    </div>
-    <div class="form-group">
-      <label for="itemPrice">Item Price (RM):</label>
-      <input type="number" id="itemPrice" name="itemPrice" step="0.01" required>
-    </div>
-    <div class="form-group">
-      <label for="itemStatus">Item Status:</label>
-      <select id="itemStatus" name="itemStatus">
-        <option value="draft">Draft</option>
-        <option value="active">Active</option>
-        <option value="expired">Expired</option>
-      </select>
-    </div>
-    <div class="form-group">
-        <label for="itemRemark">Item Remark:</label>
-        <textarea id="itemRemark" name="itemRemark" rows="4" required></textarea>
+  <%- include('partials/topbar'); %>
+
+  <div class="container">
+    <h2>Add Item</h2>
+    <form id="itemForm" enctype="multipart/form-data">
+      <div class="form-group">
+        <label for="itemImage">Upload Image:</label>
+        <input type="file" id="itemImage" name="itemImage" accept="image/*" class="form-control" required>
+        <img id="previewImage" src="#" alt="Preview Image" style="display: none; max-width: 200px;" class="mt-2">
       </div>
-    <button type="submit" class="save-button">Save</button>
-  </form>
-</div>
+      <div class="form-group">
+        <label for="itemName">Item Name:</label>
+        <div class="input-group">
+          <input type="text" id="itemName" name="itemName" class="form-control" required>
+          <div class="input-group-append">
+            <span class="input-group-text"><i class="fas fa-box"></i></span>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="itemDescription">Item Description:</label>
+        <div class="input-group">
+          <textarea id="itemDescription" name="itemDescription" class="form-control" rows="4" required></textarea>
+          <div class="input-group-append">
+            <span class="input-group-text"><i class="fas fa-align-left"></i></span>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="itemDate">Item Date:</label>
+        <div class="input-group">
+          <input type="date" id="itemDate" name="itemDate" class="form-control" required>
+          <div class="input-group-append">
+            <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="itemQuantity">Item Quantity:</label>
+        <div class="input-group">
+          <input type="number" id="itemQuantity" name="itemQuantity" class="form-control" required>
+          <div class="input-group-append">
+            <span class="input-group-text"><i class="fas fa-sort-numeric-up"></i></span>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="itemPrice">Item Price (RM):</label>
+        <div class="input-group">
+          <input type="number" id="itemPrice" name="itemPrice" step="0.01" class="form-control" required>
+          <div class="input-group-append">
+            <span class="input-group-text"><i class="fas fa-dollar-sign"></i></span>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="itemStatus">Item Status:</label>
+        <div class="input-group">
+          <select id="itemStatus" name="itemStatus" class="form-control">
+            <option value="draft">Draft</option>
+            <option value="active">Active</option>
+            <option value="expired">Expired</option>
+          </select>
+          <div class="input-group-append">
+            <span class="input-group-text"><i class="fas fa-info-circle"></i></span>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="itemRemark">Item Remark:</label>
+        <div class="input-group">
+          <textarea id="itemRemark" name="itemRemark" class="form-control" rows="4" required></textarea>
+          <div class="input-group-append">
+            <span class="input-group-text"><i class="fas fa-comments"></i></span>
+          </div>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary">Save</button>
+    </form>
+  </div>
 
-<script>
-   // Function to preview image before uploading
-   function previewImage(event) {
-    var reader = new FileReader();
-    reader.onload = function() {
-      var preview = document.getElementById('previewImage');
-      preview.src = reader.result;
-      preview.style.display = 'block';
-    }
-    reader.readAsDataURL(event.target.files[0]);
-  }
+  <!-- Success Modal -->
+  <div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-labelledby="successModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="successModalLabel">Success</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          Successfully created the item.
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Okay</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-  // Event listener for file input change
-  document.getElementById('itemImage').addEventListener('change', previewImage);
-  
-  // Function to handle form submission
-  document.getElementById('itemForm').addEventListener('submit', function(event) {
-    event.preventDefault();
-    
-    const formData = new FormData(this);
-    
-    // Parse itemQuantity as integer
-    const itemQuantity = parseInt(formData.get('itemQuantity'));
-    if (isNaN(itemQuantity)) {
-      alert('Item Quantity must be an integer.');
-      return;
-    }
-    formData.set('itemQuantity', itemQuantity);
+  <!-- Bootstrap JS and dependencies -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-    // Parse itemPrice as float
-    const itemPrice = parseFloat(formData.get('itemPrice'));
-    if (isNaN(itemPrice)) {
-      alert('Item Price must be a valid number.');
-      return;
-    }
-    formData.set('itemPrice', itemPrice);
-
-    fetch('/items', {
-      method: 'POST',
-      body: formData
-    })
-    .then(response => {
-      if (response.ok) {
-        alert('Item saved successfully!');
-        // Optionally, you can reset the form or perform other actions
-      } else {
-        throw new Error('Failed to save item');
+  <script>
+    // Function to preview image before uploading
+    function previewImage(event) {
+      var reader = new FileReader();
+      reader.onload = function() {
+        var preview = document.getElementById('previewImage');
+        preview.src = reader.result;
+        preview.style.display = 'block';
       }
-    })
-    .catch(error => {
-      console.error(error);
-      alert('Failed to save item. Please try again.');
+      reader.readAsDataURL(event.target.files[0]);
+    }
+
+    // Event listener for file input change
+    document.getElementById('itemImage').addEventListener('change', previewImage);
+
+    // Function to handle form submission
+    document.getElementById('itemForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      const formData = new FormData(this);
+
+      // Parse itemQuantity as integer
+      const itemQuantity = parseInt(formData.get('itemQuantity'));
+      if (isNaN(itemQuantity)) {
+        alert('Item Quantity must be an integer.');
+        return;
+      }
+      formData.set('itemQuantity', itemQuantity);
+
+      // Parse itemPrice as float
+      const itemPrice = parseFloat(formData.get('itemPrice'));
+      if (isNaN(itemPrice)) {
+        alert('Item Price must be a valid number.');
+        return;
+      }
+      formData.set('itemPrice', itemPrice);
+
+      fetch('/items', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => {
+        if (response.ok) {
+          $('#successModal').modal('show');
+          document.getElementById('itemForm').reset();
+          setTimeout(function(){
+            $('#successModal').modal('hide');
+            window.location.href = '/items';
+          }, 2000);
+        } else {
+          throw new Error('Failed to save item');
+        }
+      })
+      .catch(error => {
+        console.error(error);
+        alert('Failed to save item. Please try again.');
+      });
     });
-  });
-</script>
+  </script>
 
 </body>
 </html>

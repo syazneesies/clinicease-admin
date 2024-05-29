@@ -1,33 +1,31 @@
-<!-- index.ejs -->
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" type="text/css" href="/styles/home.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Homepage</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
 
-<div class="topnav">
-  <a class="active" href="/home">Home</a>
-  <a href="/services">Services</a>
-  <a href="/rewards">Rewards</a>
-  <a href="/items">Item</a>
-  <a href="/transactions">Transaction</a>
-  <a href="/branches">Branch</a>
-  <a href="javascript:void(0);" onclick="logout()" class="split">Log out</a>
-</div>
+  <!-- Include Navigation -->
+  <%- include('partials/topbar'); %>
 
-<div style="padding-left:16px">
-  <h2>Split Navigation Example</h2>
-  <p>The "Help" link in the navigation bar is separated from the rest of the navigation links, resulting in a "split navigation" layout.</p>
-</div>
+  <!-- Banner -->
+  <div class="container-fluid">
+    <img src="/images/adminBanner.png" class="img-fluid" alt="Admin Banner">
+  </div>
 
-<script>
-    function logout() {
-      // Redirect the user to the login page
-      window.location.href = "/"; 
-    }
-  </script>
+  <!-- Main Content -->
+  <div class="container mt-5">
+    <h1>Welcome to admin homepage</h1>
+    <p>Where you can manage services, rewards, items, transaction</p>
+  </div>
 
+  <!-- Bootstrap JS and dependencies -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

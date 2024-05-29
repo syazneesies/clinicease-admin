@@ -6,6 +6,9 @@ const rewardRoutes = require("./routes/rewardRoutes");
 const transactionRoutes = require("./routes/transactionRoutes");
 const itemRoutes = require("./routes/itemRoutes");
 const branchRoutes = require("./routes/branchRoutes");
+const bookedServicesRoutes = require('./routes/bookedServiceRoutes');
+const purchasedRewardsRoutes = require('./routes/purchasedRewardRoutes');
+const purchasedItemsRoutes = require('./routes/purchasedItemRoutes');
 const formatDateMiddleware = require('./middleware/dateMiddleware');
 const path = require("path");
 const admin = require('firebase-admin');
@@ -80,7 +83,6 @@ app.get('/service_detail_screen', (req, res) => {
   // Render the service_detail_screen.ejs view
   res.render('service_detail_screen');
 });
-
 
 // Include rewardRoutes
 app.use('/', rewardRoutes);
@@ -248,6 +250,26 @@ app.get('/add_branch', (req, res) => {
     res.render("add_branch");
   });
 
+
+// Routes
+app.use('/', bookedServicesRoutes);
+
+app.get('/booked_service', (req, res) => {
+  res.render('view_booked_appointment');
+});
+
+// Routes
+app.use('/', purchasedRewardsRoutes);
+
+app.get('/purchased_reward', (req, res) => {
+  res.render('view_purchased_rewards');
+});
+
+app.use('/', purchasedItemsRoutes);
+
+app.get('/purchased_item', (req, res) => {
+  res.render('view_purchased_items');
+});
 
 // Start server
 const PORT = process.env.PORT || 3000;

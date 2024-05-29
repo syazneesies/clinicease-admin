@@ -167,4 +167,55 @@ exports.deleteServiceById = async (req, res) => {
   }
 };
 
+// Function to fetch services from Firestore
+exports.getBookedServices = async (req, res) => {
+  try {
+    // Get reference to the Firestore collection
+    const snapshot = await admin.firestore().collection('booked_services').get();
+    const bookedServices = [];
+
+    // Iterate through each document and push booked_services details to services array
+    snapshot.forEach(doc => {
+      const bookedService = doc.data();
+      bookedServices.push({
+        id: doc.id,
+        serviceName: bookedService.serviceName,
+        name: bookedService.fullName,
+        phoneNumber: bookedService.phoneNumber,
+        date: bookedService.serviceDate,
+        booked_at: bookedService.createdAt
+      });
+    });
+
+    // Check if bookedServices array is populated
+    console.log("Booked Services:", bookedServices);
+
+    // Render the service_screen.ejs page with the bookedServices data
+    res.render('view_booked_appointment', { bookedServices: bookedServices });
+  } catch (err) {
+    console.error("Error fetching Booked Services: ", err);
+    res.status(500).json({
+      status: 'error',
+      message: 'Failed to fetch BookedServices'
+    });
+  }
+};
+
+// Function to get service details by ID
+exports.getServiceById = async (req, res) => {
+  try {
+      const { id } = req.params;
+      const doc = await admin.firestore().collection('services').doc(id).get();
+
+      if (!doc.exists) {
+          return res.status(404).json({ error: 'Service not found' });
+      }
+
+      res.status(200).json({ id: doc.id, ...doc.data() });
+  } catch (error) {
+      console.error('Error fetching service:', error);
+      res.status(500).json({ error: 'Failed to fetch service' });
+  }
+};
+
 

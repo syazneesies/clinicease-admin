@@ -2,56 +2,98 @@
 <html>
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
   <link rel="stylesheet" type="text/css" href="/styles/service_styles.css">
 </head>
+
+<!-- Bootstrap JS and dependencies -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
 <body>
 
-<div class="topnav">
-  <a class="active" href="/home">Home</a>
-  <a href="/services">Services</a>
-  <a href="/rewards">Rewards</a>
-  <a href="/items">Item</a>
-  <a href="/transactions">Transaction</a>
-  <a href="/branches">Branch</a>
-  <a href="javascript:void(0);" onclick="logout()" class="split">Log out</a>
-</div>
+<%- include('partials/topbar'); %>
 
-<div style="padding-left:16px">
-  <h2>Reward Screen</h2>
-  
-  <a href="/add_reward" class="add-reward-button">Add Reward</a>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="mb-4">
+        <img src="/images/reward_banner.png" class="img-fluid" alt="Reward Banner">
+      </div>
+    </div>
+  </div>
 
-  <!-- Table of Reward -->
-  <table class="rewards-table">
-    <tr>
-      <th>No</th>
-      <th>Reward Name</th>
-      <th>Reward Point</th>
-      <th>Reward Quantity</th>
-      <th>Reward Date</th>
-      <th>Reward Status</th>
-      <th>Action</th>
-    </tr>
-    <% rewards.forEach(function(reward, index) { %>
-      <tr>
-        <td><%= index + 1 %></td>
-        <td><%= reward.name %></td>
-        <td><%= reward.point %></td>
-        <td><%= reward.quantity %></td>
-        <td><%= formatDate(reward.date) %></td>
-        <td><%= reward.status %></td>
-        
-        <td>
-          <a href="/reward_detail_screen?id=<%=reward.id%>">View</a>
-          <a href="#" onclick="deleteReward('<%= reward.id %>')">Delete</a>
-        </td>
-      </tr>
-    <% }); %>
-  </table>
+  <!-- Search Functionality -->
+  <div class="row mb-3">
+    <div class="col-lg-6 offset-lg-3">
+      <div class="input-group">
+        <input type="text" id="searchInput" onkeyup="searchReward()" class="form-control" placeholder="Search by Reward Name">
+        <div class="input-group-append">
+          <button class="btn btn-primary" onclick="searchReward()"><i class="fa fa-search"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Print Button with Print Icon -->
+  <div class="row mb-3">
+    <div class="col-lg-6 offset-lg-3">
+      <button onclick="printTable()" class="btn btn-primary"><i class="fa fa-print"></i> Print</button>
+    </div>
+  </div>
+
+  <!-- Table of Rewards -->
+  <div class="row">
+    <div class="col-lg-12">
+      <table class="table">
+        <thead class="thead-light">
+          <tr>
+            <th>No</th>
+            <th>Reward Name</th>
+            <th>Reward Point</th>
+            <th>Reward Quantity</th>
+            <th>Reward Date</th>
+            <th>Reward Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="rewardsTable">
+          <% rewards.forEach(function(reward, index) { %>
+            <tr>
+              <td><%= index + 1 %></td>
+              <td><%= reward.name %></td>
+              <td><%= reward.point %></td>
+              <td><%= reward.quantity %></td>
+              <td><%= formatDate(reward.date) %></td>
+              <td>
+                <% if (reward.status === 'active') { %>
+                  <span class="badge badge-success">Active</span>
+                <% } else if (reward.status === 'expired') { %>
+                  <span class="badge badge-danger">Expired</span>
+                <% } else { %>
+                  <span class="badge badge-secondary">Draft</span>
+                <% } %>
+              </td>
+              <td>
+                <!-- View Icon -->
+                <a href="/reward_detail_screen?id=<%=reward.id%>"><i class="fa fa-eye"></i></a>
+                <!-- Delete Icon -->
+                <a href="#" onclick="deleteReward('<%= reward.id %>')"><i class="fa fa-trash"></i></a>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>
 
 <script>
-   function formatDate(dateString) {
+  // Function to format date as DD-MM-YYYY
+  function formatDate(dateString) {
     // Parse dateString to Date object
     const date = new Date(dateString.toDate());
     // Get day, month, and year components
@@ -62,31 +104,13 @@
     return `${day}-${month}-${year}`;
   }
 
+  // Function to logout
   function logout() {
     // Redirect the user to the login page
     window.location.href = "/";
   }
 
-  // Function to delete a service
-  function deleteReward(rewardId) {
-    // Confirm deletion with user
-    if (confirm("Are you sure you want to delete this reward?")) {
-        fetch(`/rewards/${rewardId}`, {
-            method: 'DELETE'
-        })
-            .then(response => {
-                if (response.ok) {
-                    window.location.reload();
-                } else {
-                    console.error('Failed to delete reward');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-    }
-}
-
+  // Function to delete a reward
   async function deleteReward(rewardId) {
     try {
       const response = await fetch(`/rewards/${rewardId}`, {
@@ -96,10 +120,35 @@
       if (!response.ok) {
         throw new Error('Failed to delete reward');
       }
-      location.reload(); 
+      location.reload(); // Reload the page to reflect the changes
     } catch (error) {
       console.error('Error deleting reward:', error);
     }
+  }
+
+  // Function to search rewards by reward name
+  function searchReward() {
+    const input = document.getElementById("searchInput");
+    const filter = input.value.toUpperCase();
+    const table = document.getElementById("rewardsTable");
+    const tr = table.getElementsByTagName("tr");
+
+    for (let i = 0; i < tr.length; i++) {
+      const td = tr[i].getElementsByTagName("td")[1];
+      if (td) {
+        const txtValue = td.textContent || td.innerText;
+        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+          tr[i].style.display = "";
+        } else {
+          tr[i].style.display = "none";
+        }
+      }
+    }
+  }
+
+  // Function to print the table
+  function printTable() {
+    window.print();
   }
 </script>
 

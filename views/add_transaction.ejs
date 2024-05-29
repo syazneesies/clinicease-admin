@@ -2,30 +2,44 @@
 <html>
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <link rel="stylesheet" type="text/css" href="/styles/add_service_styles.css">
+  <style>
+    .container {
+      margin-top: 50px;
+    }
+    .save-button {
+      width: 100%;
+      padding: 10px;
+    }
+  </style>
 </head>
 <body>
 
+<!-- Top Bar -->
+<%- include('partials/topbar'); %>
+
 <div class="container">
-  <h2>Add Transaction</h2>
+  <h2 class="text-center">Add Transaction</h2>
   <form id="transactionForm">
     <div class="form-group">
-        <label for="receiptNumber">Receipt Number:</label>
-        <input type="number" id="receiptNumber" name="receiptNumber" required>
+      <label for="receiptNumber"><i class="fas fa-receipt"></i> Receipt Number:</label>
+      <input type="number" class="form-control" id="receiptNumber" name="receiptNumber" required>
     </div>
     <div class="form-group">
-        <label for="transactionValue">Transaction Value:</label>
-        <input type="number" id="transactionValue" name="transactionValue" required>
+      <label for="transactionValue"><i class="fas fa-dollar-sign"></i> Transaction Value:</label>
+      <input type="number" class="form-control" id="transactionValue" name="transactionValue" required>
     </div>
     <div class="form-group">
-        <label for="transactionStatus">Transaction Status:</label>
-        <select id="transactionStatus" name="transactionStatus" required>
-            <option value="claimed">Claimed</option>
-            <option value="unclaimed">Unclaimed</option>
-        </select>
+      <label for="transactionStatus"><i class="fas fa-info-circle"></i> Transaction Status:</label>
+      <select class="form-control" id="transactionStatus" name="transactionStatus" required>
+        <option value="claimed">Claimed</option>
+        <option value="unclaimed">Unclaimed</option>
+      </select>
     </div>
-    <button type="submit" class="save-button">Save</button>
-</form>
+    <button type="submit" class="btn btn-primary save-button"><i class="fas fa-save"></i> Save</button>
+  </form>
 </div>
 
 <script>
@@ -55,7 +69,7 @@
     .then(response => {
         if (response.ok) {
             alert('Transaction saved to Firebase!');
-            // Optionally redirect or perform other actions
+            window.location.href = '/transactions'; // Redirect to /transactions
         } else {
             throw new Error('Failed to save transaction');
         }
@@ -65,8 +79,11 @@
         alert('Failed to save transaction');
     });
 });
-
 </script>
+
+<!-- Include Bootstrap JS and dependencies -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>

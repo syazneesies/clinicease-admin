@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link rel="stylesheet" type="text/css" href="/styles/service_styles.css">
+  <style>
+    .status-redeemed {
+      background-color: green;
+      color: black;
+      border-radius: 20px;
+      padding: 5px 10px;
+    }
+    .status-unredeemed {
+      background-color: red;
+      color: black;
+      border-radius: 20px;
+      padding: 5px 10px;
+    }
+  </style>
+</head>
+<body>
+
+<%- include('partials/topbar'); %>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="mb-4">
+        <img src="/images/purchased_rewards_banner.png" class="img-fluid" alt="Reward Banner">
+      </div>
+    </div>
+  </div>
+
+  <!-- Status Filter -->
+  <div class="row mb-3">
+    <div class="col-md-6">
+      <div class="input-group">
+        <label class="input-group-prepend" for="statusSelect">Select Status:</label>
+        <select class="form-control" id="statusSelect">
+          <option value="all">All</option>
+          <option value="redeemed">Redeemed</option>
+          <option value="unredeemed">Unredeemed</option>
+        </select>
+      </div>
+    </div>
+    <div class="col-md-6 align-self-end text-right">
+      <button class="btn btn-primary" onclick="searchByStatus()"><i class="fas fa-search"></i> Search</button>
+    </div>
+  </div>
+
+  <div class="row mb-3">
+    <div class="col-md-6">
+      <button class="btn btn-primary" onclick="printTable()"><i class="fas fa-print"></i> Print</button>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-12">
+      <!-- Table of Purchased Rewards -->
+      <div class="table-responsive">
+        <table class="table">
+          <thead class="thead-light">
+            <tr>
+              <th>No</th>
+              <th>Reward Name</th>
+              <th>Reward Date</th>
+              <th>Status</th>
+              <th>Created At</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="purchasedRewardsTable">
+            <% purchasedRewards.forEach(function(reward, index) { %>
+              <tr>
+                <td><%= index + 1 %></td>
+                <td><%= reward.rewardName %></td>
+                <td><%= reward.rewardDate.toLocaleDateString() %></td>
+                <td><span class="<%= 'status-' + reward.rewardStatus.toLowerCase() %>"><%= reward.rewardStatus %></span></td>
+                <td><%= reward.createdAt.toLocaleString() %></td>
+                <td>
+                  <!-- QR Scanner Button -->
+                  <button class="btn btn-sm btn-primary" onclick="openQRModal('<%= reward.purchasedrewardId %>')"><i class="fa fa-qrcode"></i> Scan QR</button>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- QR Code Scan Modal -->
+<div class="modal fade" id="qrModal" tabindex="-1" role="dialog" aria-labelledby="qrModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="qrModalLabel">Scan QR Code</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div id="qrReader" style="width: 100%"></div>
+        <!-- New Modal Display for Redeemed/Unredeemed -->
+        <div id="statusSelection" style="display: none;">
+          <label for="statusSelect">Select Status:</label>
+          <select class="form-control" id="statusSelect">
+            <option value="redeemed">Redeemed</option>
+            <option value="unredeemed">Unredeemed</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <!-- Add a confirm button to update status -->
+        <button type="button" class="btn btn-primary" onclick="updateStatus(currentPurchasedRewardId)">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Include jQuery, Bootstrap JS, and QR Code Scanner library -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+<script>
+  function openQRModal(purchasedRewardId) {
+    currentPurchasedRewardId = purchasedRewardId;
+    $('#qrModal').modal('show');
+    startQRScanner();
+  }
+  
+  function startQRScanner() {
+    const qrReader = new Html5Qrcode("qrReader");
+    qrReader.start(
+      { facingMode: "environment" },
+      {
+        fps: 10,
+        qrbox: 250
+      },
+      (decodedText, decodedResult) => {
+        // Handle on success condition with the decoded text
+        if (decodedText === currentPurchasedRewardId) {
+          // Display status selection dropdown
+          $('#statusSelection').show();
+          qrReader.stop();
+        } else {
+          alert("Scanned QR code does not match the current service.");
+          qrReader.stop().then(() => {
+            $('#qrModal').modal('hide');
+          }).catch(err => {
+            console.error(err);
+          });
+        }
+      },
+      (errorMessage) => {
+        // parse error, ignore it.
+      }
+    ).catch(err => {
+      console.error(err);
+    });
+  }
+  
+  function updateStatus(purchasedRewardId) {
+    const status = $('#statusSelect').val(); // Get selected status from dropdown
+  
+    fetch(`/update_reward_status/${purchasedRewardId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ status }),
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        location.reload();
+      } else {
+        alert("Error updating status!");
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
+  }
+
+  // Function to search rewards by status
+  function searchByStatus() {
+    const status = $('#statusSelect').val();
+    const rows = document.querySelectorAll("#purchasedRewardsTable tr");
+    rows.forEach(row => {
+      const rowStatus = row.querySelector("td:nth-child(4)").textContent.toLowerCase();
+      if (status === 'all' || rowStatus === status) {
+        row.style.display = "table-row";
+      } else {
+        row.style.display = "none";
+      }
+    });
+  }
+
+  // Function to print the rewards table
+  function printTable() {
+    window.print();
+  }
+</script>
+
+</body>
+</html>

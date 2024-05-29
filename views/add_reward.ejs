@@ -2,9 +2,19 @@
 <html>
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <link rel="stylesheet" type="text/css" href="/styles/add_service_styles.css">
 </head>
+
+ <!-- Bootstrap JS and dependencies -->
+ <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+ <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+ <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
 <body>
+
+  <%- include('partials/topbar'); %>
 
 <div class="container">
   <h2>Add Reward</h2>
@@ -16,38 +26,93 @@
     </div>
     <div class="form-group">
       <label for="rewardName">Reward Name:</label>
-      <input type="text" id="rewardName" name="rewardName" required>
+      <div class="input-group">
+        <input type="text" id="rewardName" name="rewardName" class="form-control" required>
+        <div class="input-group-append">
+          <span class="input-group-text"><i class="fas fa-user"></i></span>
+        </div>
+      </div>
     </div>
     <div class="form-group">
       <label for="rewardDescription">Reward Description:</label>
-      <textarea id="rewardDescription" name="rewardDescription" rows="4" required></textarea>
+      <div class="input-group">
+        <textarea id="rewardDescription" name="rewardDescription" class="form-control" rows="4" required></textarea>
+        <div class="input-group-append">
+          <span class="input-group-text"><i class="fas fa-align-left"></i></span>
+        </div>
+      </div>
     </div>
     <div class="form-group">
       <label for="rewardDate">Reward Date:</label>
-      <input type="date" id="rewardDate" name="rewardDate" required>
+      <div class="input-group">
+        <input type="date" id="rewardDate" name="rewardDate" class="form-control" required>
+        <div class="input-group-append">
+          <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+        </div>
+      </div>
     </div>
     <div class="form-group">
       <label for="rewardQuantity">Reward Quantity:</label>
-      <input type="number" id="rewardQuantity" name="rewardQuantity" required>
+      <div class="input-group">
+        <input type="number" id="rewardQuantity" name="rewardQuantity" class="form-control" required>
+        <div class="input-group-append">
+          <span class="input-group-text"><i class="fas fa-sort-numeric-up"></i></span>
+        </div>
+      </div>
     </div>
     <div class="form-group">
       <label for="rewardPoint">Reward Point:</label>
-      <input type="number" id="rewardPoint" name="rewardPoint" required>
+      <div class="input-group">
+        <input type="number" id="rewardPoint" name="rewardPoint" class="form-control" required>
+        <div class="input-group-append">
+          <span class="input-group-text"><i class="fas fa-coins"></i></span>
+        </div>
+      </div>
     </div>
     <div class="form-group">
       <label for="rewardStatus">Reward Status:</label>
-      <select id="rewardStatus" name="rewardStatus">
-        <option value="draft">Draft</option>
-        <option value="active">Active</option>
-        <option value="expired">Expired</option>
-      </select>
+      <div class="input-group">
+        <select id="rewardStatus" name="rewardStatus" class="form-control">
+          <option value="draft">Draft</option>
+          <option value="active">Active</option>
+          <option value="expired">Expired</option>
+        </select>
+        <div class="input-group-append">
+          <span class="input-group-text"><i class="fas fa-info-circle"></i></span>
+        </div>
+      </div>
     </div>
     <div class="form-group">
       <label for="rewardPIC">Reward PIC:</label>
-      <input type="text" id="rewardPIC" name="rewardPIC" required>
+      <div class="input-group">
+        <input type="text" id="rewardPIC" name="rewardPIC" class="form-control" required>
+        <div class="input-group-append">
+          <span class="input-group-text"><i class="fas fa-user"></i></span>
+        </div>
+      </div>
     </div>
-    <button type="submit" class="save-button">Save</button>
+    <button type="submit" class="btn btn-primary">Save</button>
   </form>
+</div>
+
+<!-- Success Modal -->
+<div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-labelledby="successModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="successModalLabel">Success</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Successfully created the service.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Okay</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -58,9 +123,6 @@
       var preview = document.getElementById('previewImage');
       preview.src = reader.result;
       preview.style.display = 'block';
-    }
-    reader.onerror = function(error) {
-      console.error('Error: ', error);
     }
     reader.readAsDataURL(event.target.files[0]);
   }
@@ -87,8 +149,16 @@
     })
     .then(response => {
       if (response.ok) {
-        alert('Reward saved to Firebase!');
-        window.location.href = '/rewards';
+        // Show success modal
+        $('#successModal').modal('show');
+        // Clear form inputs
+        document.getElementById('rewardForm').reset();
+        // Close modal after 2 seconds
+        setTimeout(function(){
+          $('#successModal').modal('hide');
+          // Redirect to /rewards
+          window.location.href = '/rewards';
+        }, 2000);
       } else {
         throw new Error('Failed to save reward');
       }
@@ -102,3 +172,4 @@
 
 </body>
 </html>
+

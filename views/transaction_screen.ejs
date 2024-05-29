@@ -2,50 +2,67 @@
 <html>
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <link rel="stylesheet" type="text/css" href="/public/styles/transaction_styles.css">
+  <style>
+    .container {
+      margin-top: 50px;
+    }
+    .add-service-button {
+      margin-bottom: 20px;
+      display: inline-block;
+    }
+    .table th, .table td {
+      vertical-align: middle;
+    }
+  </style>
 </head>
 <body>
 
-<div class="topnav">
-  <a class="active" href="/home">Home</a>
-  <a href="/services">Services</a>
-  <a href="/rewards">Rewards</a>
-  <a href="/items">Item</a>
-  <a href="/transactions">Transaction</a>
-  <a href="/branches">Branch</a>
-  <a href="javascript:void(0);" onclick="logout()" class="split">Log out</a>
-</div>
+<!-- Top Bar -->
+<%- include('partials/topbar'); %>
 
-<div style="padding-left:16px">
-  <h2>Transaction Screen</h2>
+<div class="container">
+  <h2 class="text-center">Transaction Screen</h2>
   
-  <a href="/add_transaction" class="add-service-button">Add Transactions</a>
+  <a href="/add_transaction" class="btn btn-primary add-service-button">
+    <i class="fas fa-plus-circle"></i> Add Transactions
+  </a>
 
-  <!-- Table of Transaction -->
-  <table class="transaction-table">
-    <tr>
-      <th>No</th>
-      <th>Receipt Number</th>
-      <th>Transaction Value</th>
-      <th>Transaction Status</th>
-    </tr>
-    <% transactions.forEach(function(transaction, index) { %>
-      <tr>
-        <td><%= index + 1 %></td>
-        <td><%= transaction.receiptNumber %></td>
-        <td><%= transaction.transactionValue %></td>
-        <td><%= transaction.transactionStatus %></td>
-        <td>
-          <a href="#" onclick="deleteTransaction('<%= transaction.id %>')">Delete</a>
-
-        </td>
-      </tr>
-    <% }); %>
-  </table>
+  <!-- Table of Transactions -->
+  <div class="table-responsive">
+    <table class="table table-bordered table-hover mt-3">
+      <thead class="thead-light">
+        <tr>
+          <th>No</th>
+          <th>Receipt Number</th>
+          <th>Transaction Value</th>
+          <th>Transaction Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="transactionTableBody">
+        <% transactions.forEach(function(transaction, index) { %>
+          <tr>
+            <td><%= index + 1 %></td>
+            <td><%= transaction.receiptNumber %></td>
+            <td><%= transaction.transactionValue %></td>
+            <td><%= transaction.transactionStatus %></td>
+            <td class="text-center">
+              <button class="btn btn-danger btn-sm" onclick="deleteTransaction('<%= transaction.id %>')">
+                <i class="fas fa-trash"></i>
+              </button>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
 </div>
 
 <script>
-    async function deleteTransaction(transactionId) {
+async function deleteTransaction(transactionId) {
   try {
     const response = await fetch(`/transactions/${transactionId}`, {
       method: 'DELETE',
@@ -55,17 +72,22 @@
       throw new Error('Failed to delete transaction');
     }
 
-    // Optional: Refresh the page or update the service list
     location.reload(); // Reload the page to reflect the changes
   } catch (error) {
     console.error('Error deleting transaction:', error);
-    // Handle error: display a message to the user, etc.
+    alert('Failed to delete transaction');
   }
 }
 
-  function logout() {
-    // Redirect the user to the login page
-    window.location.href = "/";
-  }
-
+function logout() {
+  // Redirect the user to the login page
+  window.location.href = "/";
+}
 </script>
+
+<!-- Include Bootstrap JS and dependencies -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

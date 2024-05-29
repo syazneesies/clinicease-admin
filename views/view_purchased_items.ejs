@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link rel="stylesheet" type="text/css" href="/styles/service_styles.css">
+  <style>
+    .status-paid {
+      background-color: green;
+      color: black;
+      border-radius: 20px;
+      padding: 5px 10px;
+    }
+    .status-unpaid {
+      background-color: red;
+      color: black;
+      border-radius: 20px;
+      padding: 5px 10px;
+    }
+    .modal-body-scrollable {
+      max-height: 400px; /* Adjust as needed */
+      overflow-y: auto;
+    }
+  </style>
+</head>
+<body>
+
+<%- include('partials/topbar'); %>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="mb-4">
+        <img src="/images/purchased_items_banner.png" class="img-fluid" alt="Purchased Items Banner">
+      </div>
+    </div>
+  </div>
+
+  <!-- Date Filter -->
+  <div class="row mb-3">
+    <div class="col-md-6">
+      <label for="datePurchased">Date Purchased:</label>
+      <input type="date" id="datePurchased" class="form-control">
+    </div>
+    <div class="col-md-6">
+      <button class="btn btn-primary" onclick="searchByDate()"><i class="fas fa-search"></i> Search</button>
+    </div>
+  </div>
+
+  <div class="row mb-3">
+    <div class="col-md-6">
+      <button class="btn btn-primary" onclick="printTable()"><i class="fas fa-print"></i> Print</button>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-12">
+      <!-- Table of Purchased Items -->
+      <div class="table-responsive">
+        <table class="table">
+          <thead class="thead-light">
+            <tr>
+              <th>No</th>
+              <th>Purchased ID</th>
+              <th>No. Purchased Items</th>
+              <th>Total Price</th>
+              <th>Purchased On</th>
+              <th>User ID</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="purchasedItemsTable">
+            <% purchasedItems.forEach(function(item, index) { %>
+              <tr>
+                <td><%= index + 1 %></td>
+                <td><%= item.purchaseditemId %></td>
+                <td><%= item.items.length %></td>
+                <td><%= item.totalPrice %></td>
+                <td><%= item.purchasedOn.toLocaleDateString() %></td>
+                <td><%= item.userId %></td>
+                <td><span class="<%= 'status-' + item.status.toLowerCase() %>"><%= item.status %></span></td>
+                <td>
+                  <button class="btn btn-sm btn-primary" onclick="openQRModal('<%= item.purchaseditemId %>')"><i class="fa fa-qrcode"></i> Scan QR</button>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- QR Code Scan Modal -->
+<div class="modal fade" id="qrModal" tabindex="-1" role="dialog" aria-labelledby="qrModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="qrModalLabel">Scan QR Code</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div id="qrReader" style="width: 100%"></div>
+        <div id="qrErrorMessage" class="text-danger" style="display: none;">Error fetching purchased items. Please try again.</div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Display Item Modal -->
+<div class="modal fade" id="displayItemModal" tabindex="-1" role="dialog" aria-labelledby="displayItemModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="displayItemModalLabel">Purchased Item Details</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body modal-body-scrollable" id="scannedItems">
+        <!-- Fetched items will be displayed here -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="updateTransactionStatus()">Pay & Collect</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Include jQuery, Bootstrap JS, and QR Code Scanner library -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+
+<script>
+let scannedPurchasedItemId;
+
+// Function to open the QR code scanning modal
+function openQRModal(purchasedItemId) {
+  scannedPurchasedItemId = purchasedItemId;
+  $('#qrModal').modal('show');
+  startQRScanner();
+}
+
+// Function to start the QR code scanner
+function startQRScanner() {
+  const qrReader = new Html5Qrcode("qrReader");
+  qrReader.start(
+    { facingMode: "environment" },
+    {
+      fps: 10,
+      qrbox: 250
+    },
+    (decodedText, decodedResult) => {
+      if (decodedText === scannedPurchasedItemId) {
+        fetch(`/purchased-items/${scannedPurchasedItemId}`)
+          .then(response => response.json())
+          .then(data => {
+            if (data) {
+              $('#qrModal').modal('hide');
+              displayScannedItems(data);
+              $('#displayItemModal').modal('show');
+            } else {
+              displayQRError();
+            }
+            qrReader.stop();
+          })
+          .catch(error => {
+            console.error('Error fetching purchased items:', error);
+            displayQRError();
+            qrReader.stop();
+          });
+      } else {
+        alert("Scanned QR code does not match the current service.");
+        qrReader.stop();
+        $('#qrModal').modal('hide');
+      }
+    },
+    (errorMessage) => {
+      // Parse error, ignore it
+    }
+  ).catch(err => {
+    console.error(err);
+    alert('Failed to start QR code scanner. Please try again.');
+  });
+}
+
+function displayQRError() {
+  document.getElementById('qrErrorMessage').style.display = 'block';
+}
+
+// Function to display the scanned items
+function displayScannedItems(data) {
+  const scannedItemsContainer = document.getElementById('scannedItems');
+  scannedItemsContainer.innerHTML = ''; // Clear previous scanned items
+  const items = data.items;
+
+  items.forEach(item => {
+    const itemElement = document.createElement('div');
+    itemElement.innerHTML = `
+      <div class="card mb-2">
+        <div class="card-body">
+          <img src="${item.imageUrl}" alt="${item.itemName}" style="width: 100px;" class="img-fluid">
+          <p><strong>Name:</strong> ${item.itemName}</p>
+          <p><strong>Quantity:</strong> ${item.quantity}</p>
+          <p><strong>Price:</strong> ${item.itemPrice}</p>
+          <p><strong>Description:</strong> ${item.itemDescription}</p>
+        </div>
+      </div>
+    `;
+    scannedItemsContainer.appendChild(itemElement);
+  });
+
+  // Display overall purchase details
+  const overallDetails = document.createElement('div');
+  overallDetails.innerHTML = `
+    <div class="card mt-2">
+      <div class="card-body">
+        <p><strong>Purchased ID:</strong> ${data.purchaseditemId}</p>
+        <p><strong>User ID:</strong> ${data.userId}</p>
+        <p><strong>Purchased On:</strong> ${new Date(data.purchasedOn).toLocaleDateString()}</p>
+        <p><strong>Total Price:</strong> ${data.totalPrice}</p>
+        <p><strong>Status:</strong> ${data.status}</p>
+      </div>
+    </div>
+  `;
+  scannedItemsContainer.appendChild(overallDetails);
+}
+
+// Function to update the transaction status
+function updateTransactionStatus() {
+  fetch(`/update-transaction-status/${scannedPurchasedItemId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ status: 'Paid' }), // Assuming 'Paid' is the status to update
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      alert("Transaction status updated successfully!");
+      $('#displayItemModal').modal('hide');
+      location.reload(); // Reload the page to reflect the updated status
+    } else {
+      alert("Error updating transaction status!");
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+  });
+}
+
+// Function to search purchased items by date
+function searchByDate() {
+  const datePurchased = new Date(document.getElementById('datePurchased').value);
+  const rows = document.querySelectorAll("#purchasedItemsTable tr");
+  rows.forEach(row => {
+    if (row.querySelector("th")) return;
+    const purchasedOnString = row.cells[4].textContent.trim();
+    const purchasedOn = parseDateFromString(purchasedOnString);
+    if (isSameDate(datePurchased, purchasedOn)) {
+      row.style.display = "table-row";
+    } else {
+      row.style.display = "none";
+    }
+  });
+}
+
+// Function to parse date from string
+function parseDateFromString(dateString) {
+  const parts = dateString.split("/");
+  const day = parseInt(parts[0]);
+  const month = parseInt(parts[1]) - 1;
+  const year = parseInt(parts[2]);
+  return new Date(year, month, day);
+}
+
+// Function to compare two dates (ignoring time)
+function isSameDate(date1, date2) {
+  return date1.getFullYear() === date2.getFullYear() &&
+         date1.getMonth() === date2.getMonth() &&
+         date1.getDate() === date2.getDate();
+}
+
+// Function to print the purchased items table
+function printTable() {
+  window.print();
+}
+</script>
+
+</body>
+</html>
