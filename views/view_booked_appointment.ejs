@@ -88,7 +88,11 @@
                 <td><%= service.serviceTimes.toLocaleTimeString() %></td>
                 <td><%= service.createdAt.toLocaleString() %></td>
                 <td><%= service.selectedBranch[0].branchName %></td>
-                <td><span class="<%= 'status-' + service.status.toLowerCase() %>"><%= service.status %></span></td>
+                <td>
+                  <span class="<%= service.status ? 'status-' + service.status.toLowerCase() : '' %>">
+                    <%= service.status %>
+                  </span>
+                </td>
                 <td>
                   <!-- Action Buttons -->
                   

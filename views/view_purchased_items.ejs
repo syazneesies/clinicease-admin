@@ -80,7 +80,13 @@
                 <td><%= item.totalPrice %></td>
                 <td><%= item.purchasedOn.toLocaleDateString() %></td>
                 <td><%= item.userId %></td>
-                <td><span class="<%= 'status-' + item.status.toLowerCase() %>"><%= item.status %></span></td>
+                <td>
+                  <% if (item.status) { %>
+                    <span class="<%= 'status-' + item.status.toLowerCase() %>"><%= item.status %></span>
+                  <% } else { %>
+                    <span class="status-unknown">Unknown</span>
+                  <% } %>
+                </td>
                 <td>
                   <button class="btn btn-sm btn-primary" onclick="openQRModal('<%= item.purchaseditemId %>')"><i class="fa fa-qrcode"></i> Scan QR</button>
                 </td>
