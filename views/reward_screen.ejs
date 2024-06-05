@@ -4,7 +4,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-
   <link rel="stylesheet" type="text/css" href="/styles/service_styles.css">
 </head>
 
@@ -81,7 +80,7 @@
                 <!-- View Icon -->
                 <a href="/reward_detail_screen?id=<%=reward.id%>"><i class="fa fa-eye"></i></a>
                 <!-- Delete Icon -->
-                <a href="#" onclick="deleteReward('<%= reward.id %>')"><i class="fa fa-trash"></i></a>
+                <a href="#" data-toggle="modal" data-target="#deleteModal" onclick="setDeleteRewardId('<%= reward.id %>')"><i class="fa fa-trash"></i></a>
               </td>
             </tr>
           <% }); %>
@@ -91,7 +90,49 @@
   </div>
 </div>
 
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete the reward?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger" onclick="confirmDelete()">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
+  let deleteRewardId = null;
+
+  function setDeleteRewardId(id) {
+    deleteRewardId = id;
+  }
+
+  async function confirmDelete() {
+    try {
+      const response = await fetch(`/rewards/${deleteRewardId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete reward');
+      }
+      location.reload(); // Reload the page to reflect the changes
+    } catch (error) {
+      console.error('Error deleting reward:', error);
+    }
+  }
+
   // Function to format date as DD-MM-YYYY
   function formatDate(dateString) {
     // Parse dateString to Date object
@@ -108,22 +149,6 @@
   function logout() {
     // Redirect the user to the login page
     window.location.href = "/";
-  }
-
-  // Function to delete a reward
-  async function deleteReward(rewardId) {
-    try {
-      const response = await fetch(`/rewards/${rewardId}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to delete reward');
-      }
-      location.reload(); // Reload the page to reflect the changes
-    } catch (error) {
-      console.error('Error deleting reward:', error);
-    }
   }
 
   // Function to search rewards by reward name

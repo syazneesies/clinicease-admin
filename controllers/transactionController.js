@@ -12,11 +12,23 @@ if (!admin.apps.length) {
 // Controller to handle adding a new transaction
 exports.addTransaction = async (req, res) => {
   try {
-    const { receiptNumber, transactionValue, transactionStatus} = req.body;
-    console.log("Receipt Number:", receiptNumber, "transactionValue:", transactionValue);
+    const { receiptNumber, transactionValue, transactionStatus } = req.body;
+    console.log("Receipt Number:", receiptNumber, "Transaction Value:", transactionValue);
     
     if (!receiptNumber || !transactionValue || !transactionStatus) {
-        throw new Error("Missing receipt number  or transaction value or transaction status in request body");
+        throw new Error("Missing receipt number, transaction value, or transaction status in request body");
+    }
+
+    // Check if the receipt number already exists
+    const existingTransaction = await admin.firestore().collection("transactions")
+      .where("receiptNumber", "==", receiptNumber)
+      .get();
+
+    if (!existingTransaction.empty) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Receipt number has been added!'
+      });
     }
 
     // Generate a unique ID for the transaction
@@ -41,39 +53,6 @@ exports.addTransaction = async (req, res) => {
     });
   }
 };
-
-// Function to fetch transactions from Firestore
-// exports.getTransactions = async (req, res) => {
-//   try {
-//     // Get reference to the Firestore collection
-//     const snapshot = await admin.firestore().collection('transactions').get();
-//     const transactions = [];
-   
-//     // Iterate through each document and push transaction details to transactions array
-//     snapshot.forEach(doc => {
-//       const transaction = doc.data();
-//       transactions.push({
-//         id: doc.id,
-//         receiptNumber: transaction.receiptNumber,
-//         transactionValue: transaction.transactionValue, 
-//         transactionStatus: transaction.transactionStatus,
-//       });
-//     });
-
-//     // Log the transactions array for debugging
-//     console.log("Transactions:", transactions);
-
-//     // Render the transaction_screen.ejs page with the transactions data
-//     res.render('transaction_screen', { transactions : transactions });
-//   } catch (err) {
-//     console.error("Error fetching transactions: ", err);
-//     res.status(500).json({
-//       status: 'error',
-//       message: 'Failed to fetch transactions'
-//     });
-//   }
-// };
-
 
 // Controller method to delete a transaction by ID
 // Function to fetch rewards from Firestore

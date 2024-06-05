@@ -30,6 +30,14 @@
     <i class="fas fa-plus-circle"></i> Add Transactions
   </a>
 
+  <!-- Success Alert for Deletion -->
+  <div class="alert alert-success alert-dismissible fade show" id="deleteSuccessAlert" role="alert" style="display: none;">
+    Selected item has been deleted!
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+
   <!-- Table of Transactions -->
   <div class="table-responsive">
     <table class="table table-bordered table-hover mt-3">
@@ -50,7 +58,7 @@
             <td><%= transaction.transactionValue %></td>
             <td><%= transaction.transactionStatus %></td>
             <td class="text-center">
-              <button class="btn btn-danger btn-sm" onclick="deleteTransaction('<%= transaction.id %>')">
+              <button class="btn btn-danger btn-sm" onclick="confirmDeleteTransaction('<%= transaction.id %>')">
                 <i class="fas fa-trash"></i>
               </button>
             </td>
@@ -61,10 +69,38 @@
   </div>
 </div>
 
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteConfirmationModal" tabindex="-1" role="dialog" aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteConfirmationModalLabel">Confirm Deletion</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Are you sure? You want to delete the selected transaction?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger" id="confirmDeleteButton">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
-async function deleteTransaction(transactionId) {
+let transactionIdToDelete;
+
+function confirmDeleteTransaction(transactionId) {
+  transactionIdToDelete = transactionId;
+  $('#deleteConfirmationModal').modal('show');
+}
+
+document.getElementById('confirmDeleteButton').addEventListener('click', async function() {
   try {
-    const response = await fetch(`/transactions/${transactionId}`, {
+    const response = await fetch(`/transactions/${transactionIdToDelete}`, {
       method: 'DELETE',
     });
 
@@ -72,12 +108,16 @@ async function deleteTransaction(transactionId) {
       throw new Error('Failed to delete transaction');
     }
 
-    location.reload(); // Reload the page to reflect the changes
+    $('#deleteConfirmationModal').modal('hide');
+    document.getElementById('deleteSuccessAlert').style.display = 'block';
+    setTimeout(() => {
+      location.reload();
+    }, 2000);
   } catch (error) {
     console.error('Error deleting transaction:', error);
     alert('Failed to delete transaction');
   }
-}
+});
 
 function logout() {
   // Redirect the user to the login page

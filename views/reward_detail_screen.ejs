@@ -2,14 +2,37 @@
 <html>
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap">
   <link rel="stylesheet" type="text/css" href="/styles/service_styles.css">
+  <style>
+    body {
+      background-color: #d4eaff; /* Baby blue background */
+      font-family: 'Poppins', sans-serif; /* Poppins font */
+    }
+    .card {
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Card shadow */
+      border-radius: 8px;
+      background-color: #ffffff;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    .card img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      margin: 0 auto 20px;
+    }
+  </style>
 </head>
 <body>
 
-<div style="padding-left:16px">
-  <h2>Reward Details</h2>
+<%- include('partials/topbar'); %>
+
+<div class="container">
+  <h2 class="my-4">Reward Details</h2>
   
-  <div id="reward-details">
+  <div id="reward-details" class="card">
     <p><strong>Reward Name:</strong> <span id="reward-name"></span></p>
     <p><strong>Reward Description:</strong> <span id="reward-description"></span></p>
     <p><strong>Reward Date:</strong> <span id="reward-date"></span></p>
@@ -17,16 +40,16 @@
     <p><strong>Reward Point:</strong> <span id="reward-point"></span></p>
     <p><strong>Reward Status:</strong> <span id="reward-status"></span></p>
     <p><strong>Reward PIC:</strong> <span id="reward-pic"></span></p>
-    <img id="reward-image" src="" alt="Reward Image">
+    <img id="reward-image" src="" alt="Reward Image" class="img-thumbnail">
   </div>
 </div>
 
 <script>
-  // Retrieve rewardId from query parameter and fetch service details
+  // Retrieve rewardId from query parameter and fetch reward details
   const urlParams = new URLSearchParams(window.location.search);
   const rewardId = urlParams.get('id');
 
-  // Fetch service details using the rewardId
+  // Fetch reward details using the rewardId
   fetch(`/rewards/${rewardId}`)
     .then(response => {
       if (!response.ok) {

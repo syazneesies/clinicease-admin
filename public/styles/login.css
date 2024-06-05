@@ -75,3 +75,40 @@ body {
 .btn:hover {
     background-color: #0056b3; /* Darker blue on hover */
 }
+
+.error-message {
+    display: none;
+    color: red;
+    margin-top: 1em;
+    text-align: center;
+}
+
+.alert-message {
+    display: none;
+    background-color: #f44336; /* Red */
+    color: white;
+    padding: 20px;
+    margin-top: 20px;
+    border-radius: 5px;
+    position: relative;
+    animation: fadein 0.5s;
+}
+
+.alert-message .closebtn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.alert-message .closebtn:hover {
+    color: #000;
+}
+
+@keyframes fadein {
+    from {opacity: 0;}
+    to {opacity: 1;}
+}

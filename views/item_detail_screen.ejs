@@ -1,32 +1,75 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" type="text/css" href="/styles/service_styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Item Details</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background-color: #ADD8E6;
+      font-family: 'Poppins', sans-serif;
+    }
+    
+    .card {
+      margin-top: 20px;
+    }
+    
+    .card-title {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+    
+    .card-body p {
+      margin-bottom: 10px;
+    }
+    
+    .card-body p strong {
+      font-weight: 500;
+    }
+    
+    #item-image {
+      max-width: 100%;
+      height: auto;
+      margin-top: 20px;
+    }
+  </style>
 </head>
 <body>
 
-<div style="padding-left:16px">
-  <h2>Item Details</h2>
-  
-  <div id="item-details">
-    <p><strong>Item Name:</strong> <span id="item-name"></span></p>
-    <p><strong>Item Description:</strong> <span id="item-description"></span></p>
-    <p><strong>Item Date:</strong> <span id="item-date"></span></p>
-    <p><strong>Item Price:</strong> <span id="item-price"></span></p>
-    <p><strong>Item Status:</strong> <span id="item-status"></span></p>
-    <p><strong>Item Quantity:</strong> <span id="item-quantity"></span></p>
-    <p><strong>Item Remark:</strong> <span id="item-remark"></span></p>
-    <img id="item-image" src="" alt="Item Image">
+<%- include('partials/topbar'); %>
+
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card shadow">
+        <div class="card-body">
+          <h2 class="card-title">Item Details</h2>
+          <div id="item-details">
+            <p><strong>Item Name:</strong> <span id="item-name"></span></p>
+            <p><strong>Item Description:</strong> <span id="item-description"></span></p>
+            <p><strong>Item Date:</strong> <span id="item-date"></span></p>
+            <p><strong>Item Price:</strong> <span id="item-price"></span></p>
+            <p><strong>Item Status:</strong> <span id="item-status"></span></p>
+            <p><strong>Item Quantity:</strong> <span id="item-quantity"></span></p>
+            <p><strong>Item Remark:</strong> <span id="item-remark"></span></p>
+            <img id="item-image" src="" class="img-fluid" alt="Item Image">
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
 <script>
-  // Retrieve itemId from query parameter and fetch service details
+  // Retrieve itemId from query parameter and fetch item details
   const urlParams = new URLSearchParams(window.location.search);
   const itemId = urlParams.get('id');
 
-  // Fetch service details using the itemId
+  // Fetch item details using the itemId
   fetch(`/items/${itemId}`)
     .then(response => {
       if (!response.ok) {

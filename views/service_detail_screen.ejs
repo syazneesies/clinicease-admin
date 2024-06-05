@@ -2,21 +2,37 @@
 <html>
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="/styles/service_detail_style.css">
   <link rel="stylesheet" type="text/css" href="/styles/service_styles.css">
 </head>
 <body>
 
-<div style="padding-left:16px">
-  <h2>Service Details</h2>
-  
-  <div id="service-details">
-    <p><strong>Service Name:</strong> <span id="service-name"></span></p>
-    <p><strong>Service Description:</strong> <span id="service-description"></span></p>
-    <p><strong>Service Date:</strong> <span id="service-date"></span></p>
-    <p><strong>Service PIC:</strong> <span id="service-pic"></span></p>
-    <p><strong>Service Quantity:</strong> <span id="service-quantity"></span></p>
-    <p><strong>Service Status:</strong> <span id="service-status"></span></p>
-    <img id="service-image" src="" alt="Service Image">
+<!-- Top Bar -->
+<%- include('partials/topbar'); %>
+
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-body">
+          <h2 class="card-title">Service Details</h2>
+          
+          <div id="service-details">
+            <p><strong>Service Name:</strong> <span id="service-name"></span></p>
+            <p><strong>Service Description:</strong> <span id="service-description"></span></p>
+            <p><strong>Service Date:</strong> <span id="service-date"></span></p>
+            <p><strong>Service PIC:</strong> <span id="service-pic"></span></p>
+            <p><strong>Service Quantity:</strong> <span id="service-quantity"></span></p>
+            <p><strong>Service Status:</strong> <span id="service-status"></span></p>
+            <div id="service-image-container">
+              <img id="service-image" src="" alt="Service Image">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -42,7 +58,7 @@
     
     // Return formatted date string
     return `${day}-${month}-${year}`;
-}
+  }
 
   // Fetch service details using the serviceId
   fetch(`/services/${serviceId}`)

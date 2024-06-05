@@ -4,13 +4,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-
   <link rel="stylesheet" type="text/css" href="/styles/service_styles.css">
 </head>
- <!-- Bootstrap JS and dependencies -->
- <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
- <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<!-- Bootstrap JS and dependencies -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 <body>
 
@@ -45,66 +45,91 @@
     </div>
   </div>
 
-      <!-- Table of Services -->
-      <div class="table-responsive">
-        <table class="table">
-          <thead class="thead-light">
-            <tr>
-              <th scope="col">No</th>
-              <th scope="col">Service Name</th>
-              <th scope="col">Service Quantity</th>
-              <th scope="col">Service Date</th>
-              <th scope="col">Service Status</th>
-              <th scope="col">Action</th>
-            </tr>
-          </thead>
-          <tbody id="servicesTable">
-            <% services.forEach(function(service, index) { %>
-              <tr>
-                <td><%= index + 1 %></td>
-                <td><%= service.name %></td>
-                <td><%= service.quantity %></td>
-                <td><%= formatDate(service.date) %></td>
-                <td>
-                  <% if (service.status === 'active') { %>
-                    <span class="badge badge-success">Active</span>
-                  <% } else { %>
-                    <span class="badge badge-danger">Inactive</span>
-                  <% } %>
-                </td>
-                <td>
-                  <!-- View Icon -->
-                  <a href="/service_detail_screen?id=<%= service.id %>"><i class="fa fa-eye"></i></a>
-                  <!-- Delete Icon -->
-                  <a href="#" onclick="deleteService('<%= service.id %>')"><i class="fa fa-trash"></i></a>
-                </td>
-              </tr>
-            <% }); %>
-          </tbody>
-        </table>
+  <!-- Table of Services -->
+  <div class="table-responsive">
+    <table class="table">
+      <thead class="thead-light">
+        <tr>
+          <th scope="col">No</th>
+          <th scope="col">Service Name</th>
+          <th scope="col">Service Quantity</th>
+          <th scope="col">Service Date</th>
+          <th scope="col">Service Status</th>
+          <th scope="col">Action</th>
+        </tr>
+      </thead>
+      <tbody id="servicesTable">
+        <% services.forEach(function(service, index) { %>
+          <tr>
+            <td><%= index + 1 %></td>
+            <td><%= service.name %></td>
+            <td><%= service.quantity %></td>
+            <td><%= formatDate(service.date) %></td>
+            <td>
+              <% if (service.status === 'active') { %>
+                <span class="badge badge-success">Active</span>
+              <% } else { %>
+                <span class="badge badge-danger">Inactive</span>
+              <% } %>
+            </td>
+            <td>
+              <!-- View Icon -->
+              <a href="/service_detail_screen?id=<%= service.id %>"><i class="fa fa-eye"></i></a>
+              <!-- Delete Icon -->
+              <a href="#" onclick="showDeleteConfirmationModal('<%= service.id %>')"><i class="fa fa-trash"></i></a>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteConfirmationModal" tabindex="-1" role="dialog" aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteConfirmationModalLabel">Confirm Deletion</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Are you sure? The service selected will be deleted.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger" id="confirmDeleteButton">Confirm</button>
       </div>
     </div>
   </div>
 </div>
 
+<!-- Success Alert -->
+<div class="alert alert-success alert-dismissible fade show" role="alert" id="successAlert">
+  <i class="fa fa-check-circle"></i> The service selected has been deleted.
+  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
 
 <script>
+  let serviceIdToDelete = null;
+
   // Function to format date as DD-MM-YYYY
   function formatDate(dateString) {
-    // Parse dateString to Date object
-    const date = new Date(dateString.toDate());
-    // Get day, month, and year components
+    const date = new Date(dateString);
     const day = String(date.getDate()).padStart(2, '0');
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const year = date.getFullYear();
-    // Return formatted date string
     return `${day}-${month}-${year}`;
   }
 
-  // Function to logout
-  function logout() {
-    // Redirect the user to the login page
-    window.location.href = "/";
+  // Function to show delete confirmation modal
+  function showDeleteConfirmationModal(serviceId) {
+    serviceIdToDelete = serviceId;
+    $('#deleteConfirmationModal').modal('show');
   }
 
   // Function to delete a service
@@ -118,13 +143,30 @@
         throw new Error('Failed to delete service');
       }
 
-      // Optional: Refresh the page or update the service list
+      $('#deleteConfirmationModal').modal('hide');
+      showSuccessAlert();
       location.reload(); // Reload the page to reflect the changes
     } catch (error) {
       console.error('Error deleting service:', error);
-      // Handle error: display a message to the user, etc.
+      alert('Failed to delete service');
     }
   }
+
+  // Function to show success alert
+  function showSuccessAlert() {
+    const successAlert = document.getElementById('successAlert');
+    successAlert.style.display = 'block';
+    setTimeout(() => {
+      successAlert.style.display = 'none';
+    }, 3000);
+  }
+
+  // Event listener for confirm delete button
+  document.getElementById('confirmDeleteButton').addEventListener('click', function() {
+    if (serviceIdToDelete) {
+      deleteService(serviceIdToDelete);
+    }
+  });
 
   // Function to search services by service name
   function searchService() {

@@ -193,7 +193,7 @@
     const rows = document.querySelectorAll("#purchasedRewardsTable tr");
     rows.forEach(row => {
       const rowStatus = row.querySelector("td:nth-child(4)").textContent.toLowerCase();
-      if (status === 'all' || rowStatus === status) {
+      if (status === 'redeemed' || rowStatus === status) {
         row.style.display = "table-row";
       } else {
         row.style.display = "none";

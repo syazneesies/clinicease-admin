@@ -5,21 +5,54 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/styles/login.css"> 
+    <link rel="stylesheet" href="/styles/login.css">
 </head>
 <body>
     <div class="login-container">
         <h2>Login</h2>
-        <form action="/auth/login" method="POST">
+        <form id="loginForm">
             <div class="input-group">
                 <input type="text" name="username" placeholder="Username" required>
             </div>
             <div class="input-group">
-                <input type="password"  name="password" placeholder="Password" required>
+                <input type="password" name="password" placeholder="Password" required>
             </div>
             <button type="submit" class="btn">Login</button>
         </form>
-        <p id="message"></p>
+        <div id="alertMessage" class="alert-message" style="display:none;">
+            <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+            <p id="alertText"></p>
+        </div>
     </div>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function(event) {
+            event.preventDefault(); // Prevent the form from submitting the default way
+
+            const formData = new FormData(this);
+            const username = formData.get('username');
+            const password = formData.get('password');
+
+            try {
+                const response = await fetch('/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, password }),
+                });
+
+                if (response.status === 401) {
+                    const alertMessage = document.getElementById('alertMessage');
+                    const alertText = document.getElementById('alertText');
+                    alertText.textContent = 'Invalid username or password, please check with your administrators';
+                    alertMessage.style.display = 'block';
+                } else if (response.redirected) {
+                    window.location.href = response.url;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+    </script>
 </body>
 </html>
